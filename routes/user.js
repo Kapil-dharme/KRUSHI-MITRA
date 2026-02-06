@@ -223,7 +223,7 @@ router.get("/market", checkforrole("USER"), (req, res) => {
         user: req.user
     })
 })
-router.get("/AI-disease-diagnose", checkforrole("USER"), (req, res) => {
+router.get("/aidisease", checkforrole("USER"), (req, res) => {
     return res.render("diseasediagnose", {
         user: req.user
     })
@@ -250,27 +250,51 @@ router.post("/aidisease", upload.single("cropimageurl"), async (req, res) => {
             });
         }
 
+        // ✅ Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+        if (!allowedTypes.includes(req.file.mimetype)) {
+            // Delete invalid file immediately
+            fs.unlinkSync(path.join(__dirname, "../public/uploads", req.file.filename));
+            return res.status(400).json({
+                success: false,
+                error: "Invalid file type. Only JPEG, PNG, and WebP are allowed."
+            });
+        }
+
         // ✅ Public image URL
         const cropimageurl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-        // 🧹 Auto-delete after 5 minutes (safer timing)
+        // 🧹 Schedule cleanup (increase to 10-15 min for AI processing)
         const filePath = path.join(__dirname, "../public/uploads", req.file.filename);
-
-        setTimeout(() => {
+        
+        const cleanupTimeout = setTimeout(() => {
             fs.unlink(filePath, (err) => {
-                if (err) {
+                if (err && err.code !== 'ENOENT') { // Ignore if already deleted
                     console.error("❌ Image delete failed:", err.message);
                 } else {
                     console.log("✅ Image deleted:", req.file.filename);
                 }
             });
-        }, 5 * 60 * 1000); // 5 minutes instead of 2
-        // ✅ Redirect to diagnosis page with image URL
+        }, 5 * 60 * 1000); // 15 minutes for AI processing
+
+        // Store timeout ID if you need to cancel it later
+        cleanupTimeout.unref(); // Allow process to exit even if timeout is pending
+
+        // ✅ Redirect to diagnosis page
         return res.redirect(`/user/AI-disease-diagnose?cropimageurl=${encodeURIComponent(cropimageurl)}`);
-        
 
     } catch (error) {
         console.error("❌ Upload error:", error);
+        
+        // Cleanup file if it was uploaded but processing failed
+        if (req.file) {
+            try {
+                fs.unlinkSync(path.join(__dirname, "../public/uploads", req.file.filename));
+            } catch (unlinkError) {
+                console.error("❌ Cleanup failed:", unlinkError.message);
+            }
+        }
+        
         return res.status(500).json({
             success: false,
             error: "Image upload failed"
