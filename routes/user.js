@@ -223,7 +223,7 @@ router.get("/market", checkforrole("USER"), (req, res) => {
         user: req.user
     })
 })
-router.get("/aidisease", checkforrole("USER"), (req, res) => {
+router.get("/AI-disease-diagnose", checkforrole("USER"), (req, res) => {
     return res.render("diseasediagnose", {
         user: req.user
     })
