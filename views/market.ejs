@@ -69,12 +69,28 @@
                 English / हिंदी
             </button>
 
-            <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
-                <div class="text-right hidden sm:block"></div>
-                <div class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
-                    RK
-                </div>
-            </a>
+          <% if (locals.user) { %>
+                <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+
+                    </div>
+
+                    <div
+                        class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                        <% const names=user.fullName.split(' ');
+        const initials = names.length > 1 
+            ? names[0][0] + names[names.length - 1][0] 
+            : names[0].slice(0, 2);
+    %>
+    <%= initials.toUpperCase() %>
+</div>
+                </a>
+                <% } else { %>
+                    <a href="/user/signin"
+                        class="bg-brand-green text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-dark transition shadow-lg shadow-emerald-200 inline-block text-center">
+                        Login
+                    </a>
+                    <% } %>
         </div>
     </nav>
 

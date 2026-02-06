@@ -120,11 +120,12 @@
                 English / हिंदी
             </button>
 
-            <% if (locals.user) { %>
+           <% if (locals.user) { %>
                 <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
                     <div class="text-right hidden sm:block">
 
                     </div>
+
                     <div
                         class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
                         <% const names=user.fullName.split(' ');
@@ -135,9 +136,7 @@
     <%= initials.toUpperCase() %>
 </div>
                 </a>
-
                 <% } else { %>
-                    <!-- Show login button when not logged in -->
                     <a href="/user/signin"
                         class="bg-brand-green text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-dark transition shadow-lg shadow-emerald-200 inline-block text-center">
                         Login
