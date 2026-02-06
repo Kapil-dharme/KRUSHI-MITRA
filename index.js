@@ -8,7 +8,7 @@ const app = express()
 const userroute = require('./routes/user')
 const { connecttoserver } = require("./services/mongodbconnect")
 const { queryhandler } = require("./middlewares/querymiddleware")
-const { checkforauthentication, checkforrole } = require("./middlewares/auth")
+const { checkforauthentication } = require("./middlewares/auth")
 const port = process.env.PORT || 3000
 
 //connection of mongodb
@@ -25,6 +25,7 @@ app.use(queryhandler())
 app.use(checkforauthentication("token"));
 
 //setting the view engine
+app.set('trust proxy', 1);
 app.set("view engine", "ejs")
 app.set("views", path.resolve("./views"))
 

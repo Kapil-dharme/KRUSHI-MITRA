@@ -261,8 +261,9 @@ router.post("/aidisease", upload.single("cropimageurl"), async (req, res) => {
             });
         }
 
-        // ✅ Public image URL
-        const cropimageurl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        // ✅ FIXED: Force HTTPS on production (prevents Mixed Content error)
+        const protocol = req.get('x-forwarded-proto') || req.protocol;
+        const cropimageurl = `${protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
         // 🧹 Schedule cleanup (increase to 10-15 min for AI processing)
         const filePath = path.join(__dirname, "../public/uploads", req.file.filename);
@@ -275,7 +276,7 @@ router.post("/aidisease", upload.single("cropimageurl"), async (req, res) => {
                     console.log("✅ Image deleted:", req.file.filename);
                 }
             });
-        }, 5 * 60 * 1000); // 15 minutes for AI processing
+        }, 15 * 60 * 1000); // FIXED: Changed to 15 minutes (was 5)
 
         // Store timeout ID if you need to cancel it later
         cleanupTimeout.unref(); // Allow process to exit even if timeout is pending
