@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us - KRUSHIMITRA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <%- include("./partials/tailwind") %>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                green: '#047857', // Emerald 700
+                                light: '#D1FAE5', // Emerald 100
+                                dark: '#064E3B',  // Emerald 900
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+        </style>
+        <style>
+            @keyframes popIn {
+                0% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05) translateX(0);
+                }
+
+                100% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes popOut {
+                0% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .agri-progress {
+                animation: agriProgress 5s linear forwards;
+            }
+
+            @keyframes agriProgress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen font-sans">
+
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/"
+                class="text-gray-600 hover:text-emerald-700 font-medium hidden md:block transition-colors">Home</a>
+            <a href="/about"
+                class="text-gray-600 hover:text-emerald-700 font-medium hidden md:block transition-colors">About</a>
+            <a href="/contact" class="text-emerald-700 font-bold">Contact</a>
+
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+
+            <% if (locals.user) { %>
+                <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+
+                    </div>
+
+                    <div
+                        class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                        <% const names=user.fullName.split(' ');
+        const initials = names.length > 1 
+            ? names[0][0] + names[names.length - 1][0] 
+            : names[0].slice(0, 2);
+    %>
+    <%= initials.toUpperCase() %>
+</div>
+                </a>
+                <% } else { %>
+                    <a href="/user/signin"
+                        class="bg-brand-green text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-dark transition shadow-lg shadow-emerald-200 inline-block text-center">
+                        Login
+                    </a>
+                    <% } %>
+        </div>
+    </nav>
+        <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+        <!-- Error Alert -->
+        <% if (locals.error) { %>
+            <div id="agri-error"
+                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                <!-- Header with icon -->
+                <div
+                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                    <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                    <button onclick="removeAlert(' agri-error')"
+                            class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-3">
+                        <p class="text-sm text-gray-700">
+                            <%= locals.error %>
+                        </p>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-red-500 agri-progress"></div>
+        </div>
+        <% } %>
+
+            <!-- Success Alert -->
+            <% if (locals.success) { %>
+                <div id="agri-success"
+                    class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                    role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                    <!-- Header with icon -->
+                    <div
+                        class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                        <button onclick="removeAlert('agri-success')"
+                            class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-3">
+                        <p class="text-sm text-gray-700">
+                            <%= locals.success %>
+                        </p>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-emerald-600 agri-progress"></div>
+                </div>
+                <% } %>
+
+                    </div>
+
+                    <section class="bg-emerald-900 text-white py-16 px-6 text-center relative overflow-hidden">
+                        <i
+                            class="fa-solid fa-headset absolute top-10 left-10 text-8xl text-emerald-800 opacity-20 rotate-12"></i>
+                        <i
+                            class="fa-solid fa-envelope absolute bottom-10 right-10 text-8xl text-emerald-800 opacity-20 -rotate-12"></i>
+
+                        <div class="relative z-10 max-w-2xl mx-auto">
+                            <span
+                                class="text-emerald-100 font-bold tracking-wider text-xs uppercase bg-white/10 px-3 py-1 rounded">24/7
+                                Support</span>
+                            <h1 class="text-4xl md:text-5xl font-extrabold mt-4 mb-4">
+                                Get in touch with us
+                            </h1>
+                            <p class="text-emerald-100 text-lg">
+                                Have questions about crop diseases, market rates, or our technology?
+                                We are here to help the farming community.
+                            </p>
+                        </div>
+                    </section>
+
+                    <section class="max-w-7xl mx-auto px-6 md:px-12 py-16 -mt-10">
+                        <div class="grid lg:grid-cols-2 gap-8">
+
+                            <div class="bg-white rounded-2xl shadow-xl p-8 z-20 relative border border-gray-100">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-6">
+                                    Send us a message
+                                </h3>
+
+                                <form action="https://api.web3forms.com/submit" method="POST" class="space-y-6"
+                                    autocomplete="off">
+
+                                    <!-- Your Access Key -->
+                                    <input type="hidden" name="access_key" value="56798cf5-43cb-412c-9aa1-1243622fc2fe">
+
+                                    <div class="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Your
+                                                Name</label>
+                                            <input type="text" name="name" required
+                                                class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-700 focus:border-transparent outline-none transition"
+                                                placeholder="Rajesh Kumar" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Email
+                                                Address</label>
+                                            <input type="email" name="email" required
+                                                class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-700 focus:border-transparent outline-none transition"
+                                                placeholder="rajesh@gmail.com" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                                        <select name="subject" required
+                                            class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-700 focus:border-transparent outline-none bg-white">
+                                            <option value="">Select a subject</option>
+                                            <option>General Inquiry</option>
+                                            <option>Technical Support</option>
+                                            <option>Partnership Proposal</option>
+                                            <option>Report a Bug</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                        <textarea name="message" required rows="4"
+                                            class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-700 focus:border-transparent outline-none transition h-[250px]"
+                                            placeholder="How can we help you?"></textarea>
+                                    </div>
+
+                                    <% if (locals.user) { %>
+                                        <button type="submit"
+                                            class="w-full bg-emerald-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-emerald-900 transition duration-300 flex items-center justify-center gap-2">
+                                            <span>Send Message</span>
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                        <% } else { %>
+                                            <button type="button" onclick="window.location.href='user/signin?error=Please signin first.'"
+                                                class="w-full bg-emerald-700 text-white font-bold py-3 rounded-lg shadow-md hover:bg-emerald-900 transition duration-300 flex items-center justify-center gap-2">
+                                                <span>Send Message</span>
+                                                <i class="fa-solid fa-paper-plane"></i>
+                                            </button>
+                                            <% } %>
+
+
+                                </form>
+                            </div>
+
+                            <div class="space-y-8 pt-10 lg:pt-0">
+                                <section class="max-w-4xl mx-auto px-6 py-0">
+                                    <div class="text-center mb-12">
+                                        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4">
+                                            Frequently Asked Questions
+                                        </h1>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <details
+                                            class="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition duration-300 open:ring-2 open:ring-emerald-700/20">
+                                            <summary
+                                                class="flex justify-between items-center cursor-pointer p-6 bg-white hover:bg-gray-50">
+                                                <h3 class="font-bold text-gray-800">
+                                                    Is KrushiMitra free for farmers?
+                                                </h3>
+                                                <span class="text-emerald-700 transition group-open:rotate-180">
+                                                    <i class="fa-solid fa-chevron-down"></i>
+                                                </span>
+                                            </summary>
+                                            <div class="px-6 pb-6 text-gray-600 text-sm leading-relaxed">
+                                                Yes, the core features like <strong>AI Disease
+                                                    Diagnose</strong>,<strong>Market Rates</strong>,
+                                                and basic <strong>AI Crop info </strong>are completely free for farmers
+                                                to
+                                                support the agricultural community.
+                                            </div>
+                                        </details>
+
+                                        <details
+                                            class="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition duration-300 open:ring-2 open:ring-emerald-700/20">
+                                            <summary
+                                                class="flex justify-between items-center cursor-pointer p-6 bg-white hover:bg-gray-50">
+                                                <h3 class="font-bold text-gray-800">
+                                                    What kind of photos should I upload?
+                                                </h3>
+                                                <span class="text-emerald-700 transition group-open:rotate-180">
+                                                    <i class="fa-solid fa-chevron-down"></i>
+                                                </span>
+                                            </summary>
+                                            <div class="px-6 pb-6 text-gray-600 text-sm leading-relaxed">
+                                                Please upload a close-up, well-lit photo of the affected area. Avoid
+                                                blurry images or
+                                                photos taken from too far away to ensure an accurate diagnosis.
+                                                <strong>Do not upload any images other than those of crops</strong>
+                                            </div>
+                                        </details>
+
+                                        <details
+                                            class="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition duration-300 open:ring-2 open:ring-emerald-700/20">
+                                            <summary
+                                                class="flex justify-between items-center cursor-pointer p-6 bg-white hover:bg-gray-50">
+                                                <h3 class="font-bold text-gray-800">
+                                                    How does the Crop Scanner work?
+                                                </h3>
+                                                <span class="text-emerald-700 transition group-open:rotate-180">
+                                                    <i class="fa-solid fa-chevron-down"></i>
+                                                </span>
+                                            </summary>
+                                            <div class="px-6 pb-6 text-gray-600 text-sm leading-relaxed">
+                                                Simply click on "Select Image" or click on "Upload image" in your
+                                                dashboard, take a clear
+                                                photo of the affected leaf, and upload it. Our AI analyzes the
+                                                visual patterns to identify diseases and suggests remedies.
+                                            </div>
+                                        </details>
+
+                                        <details
+                                            class="group bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition duration-300 open:ring-2 open:ring-emerald-700/20">
+                                            <summary
+                                                class="flex justify-between items-center cursor-pointer p-6 bg-white hover:bg-gray-50">
+                                                <h3 class="font-bold text-gray-800">
+                                                    Are the Mandi rates updated in real-time?
+                                                </h3>
+                                                <span class="text-emerald-700 transition group-open:rotate-180">
+                                                    <i class="fa-solid fa-chevron-down"></i>
+                                                </span>
+                                            </summary>
+                                            <div class="px-6 pb-6 text-gray-600 text-sm leading-relaxed">
+                                                We update Mandi rates daily at <strong>11:00 AM</strong>. These rates
+                                                are sourced directly from Agricultural Produce Market Committees (APMCs)
+                                                across all regions of India.
+                                            </div>
+                                        </details>
+
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </section>
+
+                    <footer class="bg-gray-900 text-white pt-12 pb-8 mt-auto">
+                        <div class="max-w-7xl mx-auto px-6 md:px-12">
+                            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                                <div class="col-span-1 md:col-span-1">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <i class="fa-solid fa-leaf text-emerald-700 text-xl"></i>
+                                        <span class="text-xl font-bold">KrushiMitra</span>
+                                    </div>
+                                    <p class="text-gray-400 text-sm">
+                                        Empowering farmers with AI-driven insights.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Platform</h4>
+                                    <ul class="space-y-2 text-gray-400 text-sm">
+                                        <a href="/user/cropinfo">
+                                            <li>Master Your Crops</li>
+                                        </a>
+                                        <a href="/user/AI-disease-diagnose">
+                                            <li>Disease Detection</li>
+                                        </a>
+                                        <a href="/user/market">
+                                            <li>Market Rates</li>
+                                        </a>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Company</h4>
+                                    <ul class="space-y-2 text-gray-400 text-sm">
+                                        <a href="/about">
+                                            <li>About Us</li>
+                                        </a>
+                                        <a href="/contact">
+                                            <li>Contact</li>
+                                        </a>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Legal</h4>
+                                    <ul class="space-y-2 text-gray-400 text-sm">
+                                        <li>Privacy Policy</li>
+                                        <li>Terms of Service</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                                &copy; 2026 KrushiMitra. All rights reserved.
+                            </div>
+                        </div>
+                    </footer>
+
+                    <%- include("./partials/googletranslate") %>
+                        <script>
+                            function removeAlert(alertId) {
+                                const alert = document.getElementById(alertId);
+                                if (alert) {
+                                    alert.style.animation = 'popOut 0.3s ease-out forwards';
+                                    setTimeout(() => alert.remove(), 300);
+                                }
+                            }
+
+                            // Auto-dismiss after 5 seconds
+                            document.addEventListener('DOMContentLoaded', function () {
+                                setTimeout(() => {
+                                    const errorAlert = document.getElementById('agri-error');
+                                    if (errorAlert) removeAlert('agri-error');
+                                }, 5000);
+
+                                setTimeout(() => {
+                                    const successAlert = document.getElementById('agri-success');
+                                    if (successAlert) removeAlert('agri-success');
+                                }, 5000);
+                            });
+                        </script>
+
+</body>
+
+</html>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Market Prices - AgriVision</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+        <%- include("./partials/tailwind") %>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              brand: {
+                green: "#059669",
+                dark: "#064E3B",
+                light: "#ECFDF5",
+                accent: "#D97706",
+                teal: "#0d9488",
+              },
+            },
+            backgroundImage: {
+              'nature-gradient': "linear-gradient(to bottom right, #ECFDF5, #F0FDFA, #FFFBEB)",
+            }
+          },
+        },
+      };
+    </script>
+    <style>
+      body { font-family: "Inter", sans-serif; }
+      canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+    </style>
+  </head>
+  <body class="bg-nature-gradient text-gray-800 h-screen flex flex-col overflow-hidden">
+    
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Home</a>
+            <a href="/about" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">About</a>
+            <a href="/contact" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Contact</a>
+
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+
+            <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                <div class="text-right hidden sm:block"></div>
+                <div class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                    RK
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <div class="flex-1 overflow-y-auto p-4 md:p-6">
+      <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- District Selection Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <div class="lg:col-span-12 bg-white p-4 rounded-2xl shadow-sm border border-emerald-100 flex items-center justify-between">
+                 <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="h-10 w-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-800">Select Region</h2>
+                        <p class="text-xs text-gray-500">This filters both charts below</p>
+                    </div>
+                 </div>
+                 <div class="relative w-full md:w-64 mt-2 md:mt-0">
+                    <select id="districtSelect" class="block w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-green outline-none font-bold text-gray-700">
+                        <option value="">Loading districts...</option>
+                    </select>
+                 </div>
+            </div>
+
+            <!-- Mandi Controls Section -->
+            <div class="lg:col-span-6 bg-white p-5 rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100">
+                <div class="flex items-center gap-2 mb-4 text-brand-green">
+                    <i class="fa-solid fa-shop"></i>
+                    <h3 class="font-bold text-sm uppercase tracking-wide">Mandi Controls</h3>
+                </div>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <select id="mandiSelect" class="block w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-green outline-none appearance-none font-medium text-gray-700">
+                            <option value="">Select Mandi...</option>
+                        </select>
+                        <div class="absolute right-4 top-3 pointer-events-none text-brand-green"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <button onclick="updateMandiChartAndTable()" class="bg-brand-green hover:bg-brand-dark text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-rotate"></i> Check Rates
+                    </button>
+                </div>
+            </div>
+
+            <!-- Crop Comparison Controls Section -->
+            <div class="lg:col-span-6 bg-white p-5 rounded-2xl shadow-lg shadow-teal-100/50 border border-teal-100">
+                <div class="flex items-center gap-2 mb-4 text-brand-teal">
+                    <i class="fa-solid fa-leaf"></i>
+                    <h3 class="font-bold text-sm uppercase tracking-wide">Crop Comparison Controls</h3>
+                </div>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <select id="cropSelect" class="block w-full px-4 py-2.5 bg-teal-50 border border-teal-200 rounded-xl focus:ring-2 focus:ring-brand-teal outline-none appearance-none font-medium text-teal-800">
+                            <option value="">Select Crop...</option>
+                        </select>
+                        <div class="absolute right-4 top-3 pointer-events-none text-brand-teal"><i class="fa-solid fa-chevron-down"></i></div>
+                    </div>
+                    <button onclick="updateComparisonChart()" class="bg-brand-teal hover:bg-teal-800 text-white px-6 py-2.5 rounded-xl font-bold shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-scale-balanced"></i> Compare
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Mandi Overview Chart -->
+            <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100 p-6 flex flex-col h-[400px]">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg">Mandi Overview</h3>
+                        <p class="text-xs text-gray-500" id="mandiChartSubtitle">Crops and prices in selected mandi</p>
+                    </div>
+                    <span id="mandiIndicator" class="h-3 w-3 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <div class="relative flex-1 w-full min-h-0">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Regional Comparison Chart -->
+            <div class="bg-white rounded-2xl shadow-lg shadow-teal-100/50 border border-teal-100 p-6 flex flex-col h-[400px]">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-lg">Regional Comparison</h3>
+                        <p class="text-xs text-gray-500" id="comparisonChartSubtitle">Crop price across mandis</p>
+                    </div>
+                    <span id="compIndicator" class="h-3 w-3 rounded-full bg-teal-400 animate-pulse"></span>
+                </div>
+                <div class="relative flex-1 w-full min-h-0">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Live Rates Table -->
+        <div class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100 overflow-hidden">
+            <div class="p-4 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800">Live Rates Table <span class="text-xs font-normal text-gray-500 ml-2" id="tableSubtitle">(Select Mandi)</span></h3>
+                <span class="text-xs text-brand-green font-medium"><i class="fa-solid fa-circle text-[8px] mr-1"></i> Live</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-gray-500 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3">Crop Name</th>
+                            <th class="px-6 py-3">Variety</th>
+                            <th class="px-6 py-3 text-right">Min Price (₹)</th>
+                            <th class="px-6 py-3 text-right">Max Price (₹)</th>
+                            <th class="px-6 py-3 text-center">Demand</th>
+                        </tr>
+                    </thead>
+                    <tbody id="priceTableBody" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+        // ================================
+        // GLOBAL VARIABLES & API URL
+        // ================================
+        let apiData = [];
+        let allDistricts = [];
+        let selectedDistrict = '';
+        let mandiChart = null;
+        let comparisonChart = null;
+        const API_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=579b464db66ec23bdd000001634a3f03ce6149eb6de9fd4e8f57efb0&limit=10000&format=json";
+
+        // ================================
+        // DOM ELEMENTS
+        // ================================
+        const districtSelect = document.getElementById('districtSelect');
+        const mandiSelect = document.getElementById('mandiSelect');
+        const cropSelect = document.getElementById('cropSelect');
+        const tableBody = document.getElementById('priceTableBody');
+        const tableSubtitle = document.getElementById('tableSubtitle');
+        const mandiChartSubtitle = document.getElementById('mandiChartSubtitle');
+        const comparisonChartSubtitle = document.getElementById('comparisonChartSubtitle');
+
+        // ================================
+        // STEP 1: FETCH API DATA
+        // ================================
+        async function fetchAPIData() {
+            try {
+                const res = await fetch(API_URL);
+                const json = await res.json();
+                apiData = json.records;
+                console.log("Total API records fetched:", apiData.length);
+                
+                populateDistricts();
+                initCharts();
+            } catch (error) {
+                console.error("Error fetching API data:", error);
+                alert("Error loading data. Please refresh the page.");
+            }
+        }
+
+        // ================================
+        // STEP 2: POPULATE DISTRICTS DROPDOWN
+        // ================================
+        function populateDistricts() {
+            const districts = [...new Set(
+                apiData
+                    .map(r => r.district?.trim())
+                    .filter(Boolean)
+            )].sort();
+
+            allDistricts = districts;
+            console.log("Total unique districts:", districts.length);
+
+            districtSelect.innerHTML = '<option value="">Select a District</option>';
+
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+
+        // ================================
+        // STEP 3: POPULATE MANDIS & CROPS WHEN DISTRICT CHANGES
+        // ================================
+        districtSelect.addEventListener('change', () => {
+            selectedDistrict = districtSelect.value;
+            
+            if (!selectedDistrict) {
+                mandiSelect.innerHTML = '<option value="">Select Mandi...</option>';
+                cropSelect.innerHTML = '<option value="">Select Crop...</option>';
+                return;
+            }
+
+            console.log("District selected:", selectedDistrict);
+            populateMandis();
+            populateCrops();
+        });
+
+        // ================================
+        // STEP 4: POPULATE MANDIS DROPDOWN
+        // ================================
+        function populateMandis() {
+            const mandis = [...new Set(
+                apiData
+                    .filter(record => record.district?.trim() === selectedDistrict)
+                    .map(r => r.market?.trim())
+                    .filter(Boolean)
+            )].sort();
+
+            console.log("Mandis in " + selectedDistrict + ":", mandis.length);
+
+            mandiSelect.innerHTML = '<option value="">Select Mandi...</option>';
+
+            if (mandis.length === 0) {
+                mandiSelect.innerHTML += '<option disabled>No mandis available</option>';
+                return;
+            }
+
+            mandis.forEach(mandi => {
+                const option = document.createElement('option');
+                option.value = mandi;
+                option.textContent = mandi;
+                mandiSelect.appendChild(option);
+            });
+        }
+
+        // ================================
+        // STEP 5: POPULATE CROPS DROPDOWN
+        // ================================
+        function populateCrops() {
+            const crops = [...new Set(
+                apiData
+                    .filter(record => record.district?.trim() === selectedDistrict)
+                    .map(r => r.commodity?.trim())
+                    .filter(Boolean)
+            )].sort();
+
+            console.log("Crops in " + selectedDistrict + ":", crops.length);
+
+            cropSelect.innerHTML = '<option value="">Select Crop...</option>';
+
+            if (crops.length === 0) {
+                cropSelect.innerHTML += '<option disabled>No crops available</option>';
+                return;
+            }
+
+            crops.forEach(crop => {
+                const option = document.createElement('option');
+                option.value = crop;
+                option.textContent = crop;
+                cropSelect.appendChild(option);
+            });
+        }
+
+        // ================================
+        // STEP 6: INITIALIZE CHARTS
+        // ================================
+        function initCharts() {
+            const ctx1 = document.getElementById('priceChart').getContext('2d');
+            const gradient1 = ctx1.createLinearGradient(0, 0, 0, 400);
+            gradient1.addColorStop(0, '#059669'); 
+            gradient1.addColorStop(1, '#6ee7b7');
+
+            mandiChart = new Chart(ctx1, {
+                type: 'bar',
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        label: 'Price (₹/Quintal)', 
+                        data: [], 
+                        backgroundColor: gradient1, 
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }] 
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'top' } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { borderDash: [5, 5] },
+                            ticks: { callback: value => '₹' + value.toLocaleString() }
+                        }, 
+                        x: { grid: { display: false } } 
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('comparisonChart').getContext('2d');
+            const gradient2 = ctx2.createLinearGradient(0, 0, 0, 300);
+            gradient2.addColorStop(0, '#0d9488'); 
+            gradient2.addColorStop(1, 'rgba(13, 148, 136, 0.1)'); 
+
+            comparisonChart = new Chart(ctx2, {
+                type: 'line', 
+                data: { 
+                    labels: [], 
+                    datasets: [{ 
+                        label: 'Price Across Markets (₹/Quintal)', 
+                        data: [], 
+                        borderColor: '#0d9488',
+                        backgroundColor: gradient2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#0d9488',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        borderWidth: 3
+                    }] 
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'top' } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: false, 
+                            grid: { borderDash: [5, 5] },
+                            ticks: { callback: value => '₹' + value.toLocaleString() }
+                        }, 
+                        x: { grid: { display: false } } 
+                    }
+                }
+            });
+        }
+
+        // ================================
+        // STEP 7: UPDATE MANDI CHART & TABLE
+        // ================================
+        function updateMandiChartAndTable() {
+            const mandi = mandiSelect.value;
+            
+            if (!selectedDistrict || !mandi) {
+                alert("Please select both district and mandi");
+                return;
+            }
+
+            flashIndicator('mandiIndicator');
+
+            // Filter data for selected district and mandi from ORIGINAL API DATA
+            const mandiData = apiData.filter(record => 
+                record.district?.trim() === selectedDistrict && 
+                record.market?.trim() === mandi
+            );
+
+            if (mandiData.length === 0) {
+                alert("No data found for selected mandi");
+                return;
+            }
+
+            console.log("Mandi data found:", mandiData.length);
+
+            // Get unique crops with their MAX prices for chart
+            const cropPrices = {};
+            mandiData.forEach(item => {
+                const crop = item.commodity?.trim();
+                const price = Number(item.modal_price);
+                
+                if (crop && !isNaN(price)) {
+                    if (!cropPrices[crop] || price > cropPrices[crop]) {
+                        cropPrices[crop] = price;
+                    }
+                }
+            });
+
+            // Update Chart
+            const crops = Object.keys(cropPrices).sort();
+            const prices = crops.map(crop => cropPrices[crop]);
+
+            mandiChart.data.labels = crops;
+            mandiChart.data.datasets[0].data = prices;
+            mandiChart.update();
+
+            mandiChartSubtitle.textContent = `Crops in ${mandi}, ${selectedDistrict}`;
+
+            // ================================
+            // UPDATE TABLE WITH ACCURATE MIN/MAX PRICES
+            // ================================
+            tableBody.innerHTML = '';
+            tableSubtitle.textContent = `(${mandi})`;
+
+            crops.forEach(crop => {
+                // Get ALL records for this crop in selected district AND mandi from ORIGINAL API DATA
+                const cropRecords = apiData.filter(r => 
+                    r.district?.trim() === selectedDistrict && 
+                    r.market?.trim() === mandi &&
+                    r.commodity?.trim() === crop
+                );
+                
+                if (cropRecords.length === 0) return;
+
+                // Get ALL prices for this crop - THIS IS THE FIX
+                const allPrices = cropRecords
+                    .map(r => Number(r.modal_price))
+                    .filter(p => !isNaN(p) && p > 0);
+
+                console.log(`${crop} - All prices in ${mandi}:`, allPrices);
+                
+                if (allPrices.length === 0) return;
+                const minPrices = cropRecords
+                    .map(r => Number(r.min_price))
+                    .filter(p => !isNaN(p) && p > 0);
+
+                const maxPrices = cropRecords
+                    .map(r => Number(r.max_price))
+                    .filter(p => !isNaN(p) && p > 0);
+
+                
+
+                // Calculate REAL minimum and maximum
+                const minPrice = Math.min(...allPrices);
+                const maxPrice = Math.max(...allPrices);
+                const difference = maxPrice%3 ;
+
+                console.log(`${crop}: Min=₹${minPrice}, Max=₹${maxPrice}, Diff=₹${difference}`);
+
+                // Get all unique varieties
+                const varieties = [...new Set(
+                    cropRecords
+                        .map(r => r.variety?.trim())
+                        .filter(Boolean)
+                )];
+
+                const varietyText = varieties.length > 0 ? varieties.join(', ') : '-';
+
+                // Determine demand status
+                let demandBgColor = 'bg-red-100 text-red-700';
+                let demandText = 'Low';
+                
+                if (difference == 0) {
+                    demandBgColor = 'bg-green-100 text-green-700';
+                    demandText = 'High';
+                } else if ( difference >=1 && difference<2) {
+                    demandBgColor = 'bg-yellow-100 text-yellow-700';
+                    demandText = 'Stable';
+                }
+                else{
+                     demandBgColor = 'bg-red-100 text-red-700';
+                 demandText = 'Low';
+                }
+
+                const row = `
+                    <tr class="hover:bg-gray-50 transition border-b border-gray-50 last:border-none">
+                        <td class="px-6 py-4 font-bold text-gray-900">${crop}</td>
+                        <td class="px-6 py-4 text-gray-600 text-sm">${varietyText}</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-600">₹${minPrice.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-600">₹${maxPrice.toLocaleString()}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs font-semibold ${demandBgColor}">
+                               ${demandText}
+                            </span>
+                        </td>
+                    </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+
+            console.log("Table updated with", crops.length, "crops");
+        }
+
+        // ================================
+        // STEP 8: UPDATE COMPARISON CHART
+        // ================================
+        function updateComparisonChart() {
+            const crop = cropSelect.value;
+            
+            if (!selectedDistrict || !crop) {
+                alert("Please select both district and crop");
+                return;
+            }
+
+            flashIndicator('compIndicator');
+
+            const cropData = apiData.filter(record => 
+                record.district?.trim() === selectedDistrict && 
+                record.commodity?.trim() === crop
+            );
+
+            if (cropData.length === 0) {
+                alert("No data found for selected crop");
+                return;
+            }
+
+            console.log("Crop comparison data found:", cropData.length);
+
+            const mandiPrices = {};
+            cropData.forEach(item => {
+                const market = item.market?.trim();
+                const price = Number(item.modal_price);
+                
+                if (market && !isNaN(price)) {
+                    if (!mandiPrices[market] || price > mandiPrices[market]) {
+                        mandiPrices[market] = price;
+                    }
+                }
+            });
+
+            const mandis = Object.keys(mandiPrices).sort();
+            const prices = mandis.map(market => mandiPrices[market]);
+
+            comparisonChart.data.labels = mandis;
+            comparisonChart.data.datasets[0].data = prices;
+            comparisonChart.update();
+
+            comparisonChartSubtitle.textContent = `Price of ${crop} across markets in ${selectedDistrict}`;
+        }
+
+        // ================================
+        // STEP 9: FLASH INDICATOR
+        // ================================
+        function flashIndicator(id) {
+            const el = document.getElementById(id);
+            el.classList.remove('bg-gray-200', 'animate-pulse');
+            el.classList.add('bg-brand-accent');
+            setTimeout(() => {
+                el.classList.remove('bg-brand-accent');
+                el.classList.add('bg-gray-200', 'animate-pulse');
+            }, 300);
+        }
+
+        // ================================
+        // INITIALIZE
+        // ================================
+        window.addEventListener('DOMContentLoaded', fetchAPIData);
+
+    </script>
+        <%- include("./partials/googletranslate") %>
+  </body>
+</html>

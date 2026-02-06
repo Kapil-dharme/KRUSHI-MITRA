@@ -1,0 +1,88 @@
+<!-- Hidden Google Translate container -->
+<div id="google_translate_element" style="display:none;"></div>
+
+<script>
+/* ================= GOOGLE TRANSLATE INIT ================= */
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    { pageLanguage: "en", autoDisplay: false },
+    "google_translate_element"
+  );
+}
+
+/* ================= MAIN LOGIC ================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  const toggleBtn = document.getElementById("langToggle");
+  if (!toggleBtn) {
+    console.error("langToggle button not found");
+    return;
+  }
+
+  function clearGoogleTranslateCookie() {
+    document.cookie = "googtrans=;path=/;expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie =
+      "googtrans=;path=/;domain=" + location.hostname + ";expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  }
+
+  clearGoogleTranslateCookie();
+
+  let currentLang = localStorage.getItem("siteLang") || "en";
+
+  function updateButton() {
+    toggleBtn.textContent =
+      currentLang === "en" ? "English / हिंदी" : "हिंदी / English";
+  }
+
+  function waitForTranslate(cb) {
+    const timer = setInterval(() => {
+      const select = document.querySelector(".goog-te-combo");
+      if (select) {
+        clearInterval(timer);
+        cb(select);
+      }
+    }, 100);
+  }
+
+  function applyLanguage(lang) {
+    waitForTranslate(select => {
+      clearGoogleTranslateCookie();
+      select.value = lang;
+      select.dispatchEvent(new Event("change"));
+      currentLang = lang;
+      localStorage.setItem("siteLang", lang);
+      updateButton();
+    });
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    applyLanguage(currentLang === "en" ? "hi" : "en");
+  });
+
+  updateButton();
+
+  if (currentLang === "hi") {
+    setTimeout(() => applyLanguage("hi"), 800);
+  }
+});
+</script>
+
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<style>
+/* Hide Google Translate UI */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+</style>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - KRUSHIMITRA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <%- include("./partials/tailwind") %>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                green: '#047857', // Emerald 700
+                                light: '#D1FAE5', // Emerald 100
+                                dark: '#064E3B',  // Emerald 900
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+        </style>
+        <style>
+            @keyframes popIn {
+                0% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05) translateX(0);
+                }
+
+                100% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes popOut {
+                0% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .agri-progress {
+                animation: agriProgress 5s linear forwards;
+            }
+
+            @keyframes agriProgress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- FIXED NAVBAR -->
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Home</a>
+            <a href="/about" class="text-brand-green font-bold">About</a>
+            <a href="/contact" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Contact</a>
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+
+            <% if (locals.user) { %>
+
+                <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+
+                    </div>
+
+                    <div
+                        class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                        <% const names=user.fullName.split(' ');
+        const initials = names.length > 1 
+            ? names[0][0] + names[names.length - 1][0] 
+            : names[0].slice(0, 2);
+    %>
+    <%= initials.toUpperCase() %>
+</div>
+                </a>
+                <% } else { %>
+                    <!-- Show login button when not logged in -->
+                    <a href="/user/signin"
+                        class="bg-brand-green text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-dark transition shadow-lg shadow-emerald-200 inline-block text-center">
+                        Login
+                    </a>
+                    <% } %>
+        </div>
+    </nav>
+        <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+        <!-- Error Alert -->
+        <% if (locals.error) { %>
+            <div id="agri-error"
+                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                <!-- Header with icon -->
+                <div
+                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                    <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                    <button onclick="removeAlert(' agri-error')"
+                            class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-3">
+                        <p class="text-sm text-gray-700">
+                            <%= locals.error %>
+                        </p>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-red-500 agri-progress"></div>
+        </div>
+        <% } %>
+
+            <!-- Success Alert -->
+            <% if (locals.success) { %>
+                <div id="agri-success"
+                    class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                    role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                    <!-- Header with icon -->
+                    <div
+                        class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                        <button onclick="removeAlert('agri-success')"
+                            class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-3">
+                        <p class="text-sm text-gray-700">
+                            <%= locals.success %>
+                        </p>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-emerald-600 agri-progress"></div>
+                </div>
+                <% } %>
+
+                    </div>
+
+                    <section class="max-w-7xl mx-auto px-6 md:px-12 py-16 lg:py-24">
+                        <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+                            <div class="relative rounded-2xl overflow-hidden shadow-2xl h-96 group">
+                                <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1000&auto=format&fit=crop"
+                                    alt="Smart Farming Technology"
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+
+                                <div
+                                    class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg max-w-xs">
+                                    <p class="text-brand-green font-bold text-lg">AI-Driven</p>
+                                    <p class="text-xs text-gray-600">Merging technology with tradition.</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-6">
+                                <span
+                                    class="text-brand-green font-bold tracking-wider text-xs uppercase bg-emerald-50 px-3 py-1 rounded">
+                                    Who We Are
+                                </span>
+                                <h1 class="text-4xl font-extrabold text-gray-900">
+                                    Revolutionizing Agriculture through <span class="text-brand-green">Innovation</span>
+                                </h1>
+                                <p class="text-gray-600 leading-relaxed">
+                                    KRUSHIMITRA is a pioneering student-led initiative designed to bridge the gap
+                                    between traditional
+                                    farming and modern technology.
+                                    We understand that agriculture is the backbone of our nation, and our platform is
+                                    built to empower
+                                    farmers with real-time data,
+                                    market insights, and disease detection capabilities.
+                                </p>
+                                <p class="text-gray-600 leading-relaxed">
+                                    By leveraging Artificial Intelligence and machine learning, we aim to reduce crop
+                                    wastage and
+                                    increase profitability for
+                                    the farmers of the Vidarbha region and beyond.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-brand-dark py-20 px-6 md:px-12 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                            <i class="fa-solid fa-seedling text-9xl absolute -top-10 -left-10 text-white"></i>
+                            <i class="fa-solid fa-cloud-sun text-9xl absolute bottom-0 right-0 text-white"></i>
+                        </div>
+
+                        <div class="max-w-7xl mx-auto relative z-10">
+                            <div class="grid md:grid-cols-2 gap-8">
+
+                                <div
+                                    class="bg-white p-10 rounded-2xl shadow-xl text-center transform hover:-translate-y-2 transition duration-300">
+                                    <div
+                                        class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <i class="fa-solid fa-bullseye text-3xl text-brand-green"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+                                    <p class="text-gray-600 leading-relaxed">
+                                        To provide farmers with the latest agricultural techniques and guidance for
+                                        proper crop
+                                        selection and management based on land and climate. Our goal is to improve yield
+                                        and crop
+                                        quality.
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="bg-white p-10 rounded-2xl shadow-xl text-center transform hover:-translate-y-2 transition duration-300">
+                                    <div
+                                        class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <i class="fa-regular fa-eye text-3xl text-brand-green"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
+                                    <p class="text-gray-600 leading-relaxed">
+                                        To build an India where every farmer is self-reliant with easy access to modern
+                                        resources and
+                                        world-class agricultural techniques to maximize crop yield.
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="max-w-7xl mx-auto px-6 md:px-12 py-20">
+                        <div class="text-center mb-16">
+                            <span class="text-brand-green font-bold tracking-wider text-xs uppercase">The Minds
+                                Behind</span>
+                            <h2 class="text-3xl font-extrabold text-gray-900 mt-2">Meet Our Developers</h2>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 text-center group hover:shadow-2xl hover:border-brand-green/30 transition duration-300">
+                                <div
+                                    class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-50 group-hover:border-brand-green transition">
+                                    <img src="/photo1.jpeg" alt="Member"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Om Lanjewar</h3>
+                                <p class="text-brand-green text-sm font-medium mb-4">Frontend Developer</p>
+                                <div class="flex justify-center gap-3">
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-linkedin"></i></a>
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-github"></i></a>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 text-center group hover:shadow-2xl hover:border-brand-green/30 transition duration-300">
+                                <div
+                                    class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-50 group-hover:border-brand-green transition">
+                                    <img src="/photo2.jpeg" alt="Member"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Vedant Meshram</h3>
+                                <p class="text-brand-green text-sm font-medium mb-4">Frontend Developer</p>
+                                <div class="flex justify-center gap-3">
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-linkedin"></i></a>
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-github"></i></a>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 text-center group hover:shadow-2xl hover:border-brand-green/30 transition duration-300">
+                                <div
+                                    class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-50 group-hover:border-brand-green transition">
+                                    <img src="/profilephoto.png" alt="Member"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Kapil Dharme</h3>
+                                <p class="text-brand-green text-sm font-medium mb-4">Backend Developer</p>
+                                <div class="flex justify-center gap-3">
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-linkedin"></i></a>
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-github"></i></a>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white p-6 rounded-xl shadow-lg border border-gray-100 text-center group hover:shadow-2xl hover:border-brand-green/30 transition duration-300">
+                                <div
+                                    class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-50 group-hover:border-brand-green transition">
+                                    <img src="/photo.jpeg" alt="Member"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900">Sumit Shahu</h3>
+                                <p class="text-brand-green text-sm font-medium mb-4">AI Specialist</p>
+                                <div class="flex justify-center gap-3">
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-linkedin"></i></a>
+                                    <a href="#" class="text-gray-400 hover:text-brand-green"><i
+                                            class="fa-brands fa-github"></i></a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <footer class="bg-gray-900 text-white pt-16 pb-8">
+                        <div class="max-w-7xl mx-auto px-6 md:px-12">
+                            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                                <div class="col-span-1 md:col-span-1">
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <i class="fa-solid fa-leaf text-brand-green text-xl"></i>
+                                        <span class="text-xl font-bold">KRUSHIMITRA</span>
+                                    </div>
+                                    <p class="text-gray-400 text-sm leading-relaxed">
+                                        Empowering farmers with AI-driven insights for better yields.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Platform</h4>
+                                    <ul class="space-y-2 text-gray-400 text-sm">
+                                        <li><a href="/user/market" class="hover:text-brand-green transition">Market Rates</a></li>
+                                        <li><a href="/user/AI-disease-diagnose" class="hover:text-brand-green transition">AI Disease Detection</a>
+                                        <li><a href="/user/cropinfo" class="hover:text-brand-green transition">Master Your Crops</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Company</h4>
+                                    <ul class="space-y-2 text-gray-400 text-sm">
+                                        <li><a href="/about" class="hover:text-brand-green transition">About Us</a></li>
+                                        <li><a href="/contact" class="hover:text-brand-green transition">Contact</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-4">Connect</h4>
+                                    <div class="flex gap-4">
+                                        <a href="#" class="text-gray-400 hover:text-brand-green transition"><i
+                                                class="fa-brands fa-twitter"></i></a>
+                                        <a href="#" class="text-gray-400 hover:text-brand-green transition"><i
+                                                class="fa-brands fa-linkedin-in"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">&copy; 2026
+                                KRUSHIMITRA. All
+                                rights reserved.</div>
+                        </div>
+                    </footer>
+                    <%- include("./partials/googletranslate") %>
+                        <script>
+                            function removeAlert(alertId) {
+                                const alert = document.getElementById(alertId);
+                                if (alert) {
+                                    alert.style.animation = 'popOut 0.3s ease-out forwards';
+                                    setTimeout(() => alert.remove(), 300);
+                                }
+                            }
+
+                            // Auto-dismiss after 5 seconds
+                            document.addEventListener('DOMContentLoaded', function () {
+                                setTimeout(() => {
+                                    const errorAlert = document.getElementById('agri-error');
+                                    if (errorAlert) removeAlert('agri-error');
+                                }, 5000);
+
+                                setTimeout(() => {
+                                    const successAlert = document.getElementById('agri-success');
+                                    if (successAlert) removeAlert('agri-success');
+                                }, 5000);
+                            });
+                        </script>
+</body>
+
+</html>

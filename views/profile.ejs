@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - KRUSHIMITRA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <%- include("./partials/tailwind") %>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ["Inter", "sans-serif"],
+                        },
+                        colors: {
+                            brand: {
+                                green: "#059669", // Emerald 600
+                                dark: "#064E3B", // Emerald 900
+                                light: "#ECFDF5", // Emerald 50
+                                accent: "#D97706", // Amber 600 (Harvest color)
+                                accentLight: "#FFFBEB", // Amber 50
+                            },
+                        },
+                        backgroundImage: {
+                            "nature-gradient":
+                                "linear-gradient(to bottom right, #ECFDF5, #F0FDFA, #FFFBEB)",
+                            "card-header": "linear-gradient(to right, #059669, #0d9488)",
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+            }
+
+            /* Custom scrollbar for a polished look */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: #10b981;
+                border-radius: 4px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #059669;
+            }
+        </style>
+        <style>
+            @keyframes popIn {
+                0% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05) translateX(0);
+                }
+
+                100% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes popOut {
+                0% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .agri-progress {
+                animation: agriProgress 5s linear forwards;
+            }
+
+            @keyframes agriProgress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 h-screen flex flex-col">
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Home</a>
+            <a href="/about" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">About</a>
+            <a href="/contact" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Contact</a>
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+            <div class="flex items-center gap-3 cursor-pointer group"></div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden bg-nature-gradient">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <button onclick="goBack()"
+                class="w-15 group flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-emerald-100 z-10">
+                <i class="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                Go Back
+            </button>
+            <div class="max-w-5xl mx-auto space-y-8 pb-12">
+                <header class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button class="md:hidden text-brand-green bg-white p-2 rounded-lg shadow-sm">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+                            <p class="text-sm text-gray-500">
+                                Manage your farm details and account settings
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="hidden md:flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-emerald-100">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span class="text-xs text-gray-600 font-medium">
+                            Last Update: <%= new Date(user?.createdAt).toLocaleDateString('en-US', { month: 'short' ,
+                                day: 'numeric' , year: 'numeric' }) %>
+                        </span>
+                    </div>
+                    <a href="/user/logout"
+                        class="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-medium transition border border-red-100 shadow-sm">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </a>
+
+                </header>
+
+                <div
+                    class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100 overflow-hidden">
+                    <div
+                        class="px-6 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2 rounded-lg text-white">
+                                <i class="fa-regular fa-id-card"></i>
+                            </div>
+                            <h3 class="font-bold text-white text-lg">
+                                Personal Information
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-2 tracking-wide">Full
+                                Name</label>
+                            <div class="relative group">
+                                <input type="text" value="<%= user?.fullName %>" disabled
+                                    class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 text-gray-600 font-semibold rounded-xl focus:outline-none transition group-hover:border-emerald-200" />
+                                <div
+                                    class="absolute right-4 top-3.5 text-emerald-500/50 bg-emerald-100 p-1 rounded-full w-6 h-6 flex items-center justify-center">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-2 tracking-wide">Email
+                                ID</label>
+                            <div class="relative group">
+                                <input type="text" value="<%= user?.email%>" disabled
+                                    class="block w-full px-4 py-3 bg-gray-50 border border-gray-200 text-gray-600 font-semibold rounded-xl focus:outline-none transition group-hover:border-emerald-200" />
+                                <div
+                                    class="absolute right-4 top-3.5 text-emerald-500/50 bg-emerald-100 p-1 rounded-full w-6 h-6 flex items-center justify-center">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="/user/update-profile" method="post"
+                    class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100 overflow-hidden relative">
+                    <div class="px-6 py-4 bg-brand-light border-b border-emerald-100 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-brand-green/10 p-2 rounded-lg text-brand-green">
+                                <i class="fa-solid fa-tractor"></i>
+                            </div>
+                            <h3 class="font-bold text-brand-dark text-lg">
+                                Farm & Location Details
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="mb-4 md:w-1/3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Pin Code</label>
+                            <div class="relative">
+                                <input id="pincode" value="<%= user?.pincode %>" name="pincode" type="text"
+                                    maxlength="6" pattern="[0-9]*" inputmode="numeric"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition"
+                                    placeholder="440001">
+                                <div id="pincode-loader" class="hidden absolute right-4 top-3.5">
+                                    <div class="spinner"></div>
+                                </div>
+                                <i id="pincode-icon"
+                                    class="fa-solid fa-map-pin absolute right-4 top-3.5 text-gray-400 text-sm"></i>
+                            </div>
+                            <p id="pincode-error" class="hidden text-xs text-red-500 mt-1"></p>
+                            <p id="pincode-success" class="hidden text-xs text-green-600 mt-1"></p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                <input id="state" name="state" type="text" value="<%= user?.state %>"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition bg-gray-50"
+                                    placeholder="e.g. Maharashtra" readonly>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                                <input id="district" name="district" type="text" value="<%= user?.district %>"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition bg-gray-50"
+                                    placeholder="e.g. Nagpur" readonly>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Taluka</label>
+                                <input id="region" name="region" type="text" value="<%= user?.region %>"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition bg-gray-50"
+                                    placeholder="e.g. Katol" readonly>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Farm Area (Acres)</label>
+                                <div class="relative">
+                                    <input name="farmArea" type="number" value="<%= user?.farmArea %>"
+                                        class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-green focus:border-transparent outline-none transition"
+                                        placeholder="e.g. 5.5">
+                                    <span class="absolute right-4 top-3 text-gray-400 text-sm">Acres</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+                        <!-- Error Alert -->
+                        <% if (locals.farmError) { %>
+                            <div id="agri-error"
+                                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                <!-- Header with icon -->
+                                <div
+                                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                                    <div
+                                        class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                                    <button onclick="removeAlert('agri-error')"
+                                        class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="px-4 py-3">
+                                    <p class="text-sm text-gray-700">
+                                        <%= locals.farmError %>
+                                    </p>
+                                </div>
+
+                                <!-- Progress bar -->
+                                <div class="h-1 bg-red-500 agri-progress"></div>
+                            </div>
+                            <% } %>
+
+                                <!-- Success Alert -->
+                                <% if (locals.farmSuccess) { %>
+                                    <div id="agri-success"
+                                        class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                                        role="alert"
+                                        style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                        <!-- Header with icon -->
+                                        <div
+                                            class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                                            <div
+                                                class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                                            <button onclick="removeAlert('agri-success')"
+                                                class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="px-4 py-3">
+                                            <p class="text-sm text-gray-700">
+                                                <%= locals.farmSuccess %>
+                                            </p>
+                                        </div>
+
+                                        <!-- Progress bar -->
+                                        <div class="h-1 bg-emerald-600 agri-progress"></div>
+                                    </div>
+                                    <% } %>
+
+                    </div>
+
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <button type="submit"
+                            class="bg-gradient-to-r from-brand-green to-teal-600 hover:from-brand-dark hover:to-teal-800 text-white px-8 py-2.5 rounded-xl font-medium shadow-md hover:shadow-lg transform transition active:scale-95">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+
+                <form action="/user/update-password" method="post"
+                    class="bg-white rounded-2xl shadow-lg shadow-emerald-100/50 border border-emerald-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-amber-100 p-2 rounded-lg text-brand-accent">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <h3 class="font-bold text-gray-800 text-lg">
+                                Security Settings
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="p-8 space-y-6 max-w-lg">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                            <input name="currentPassword" type="password"
+                                class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-brand-green outline-none"
+                                placeholder="••••••••" />
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                                <input name="newPassword" type="password"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-brand-green outline-none"
+                                    placeholder="••••••••" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+                                <input name="confirmPassword" type="password"
+                                    class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-brand-green outline-none"
+                                    placeholder="••••••••" />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+                        <!-- Error Alert -->
+                        <% if (locals.passwordError) { %>
+                            <div id="agri-error"
+                                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                <!-- Header with icon -->
+                                <div
+                                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                                    <div
+                                        class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                                    <button onclick="removeAlert('agri-error')"
+                                        class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="px-4 py-3">
+                                    <p class="text-sm text-gray-700">
+                                        <%= locals.passwordError %>
+                                    </p>
+                                </div>
+
+                                <!-- Progress bar -->
+                                <div class="h-1 bg-red-500 agri-progress"></div>
+                            </div>
+                            <% } %>
+
+                                <!-- Success Alert -->
+                                <% if (locals.passwordSuccess) { %>
+                                    <div id="agri-success"
+                                        class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                                        role="alert"
+                                        style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                        <!-- Header with icon -->
+                                        <div
+                                            class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                                            <div
+                                                class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                                            <button onclick="removeAlert('agri-success')"
+                                                class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="px-4 py-3">
+                                            <p class="text-sm text-gray-700">
+                                                <%= locals.passwordSuccess %>
+                                            </p>
+                                        </div>
+
+                                        <!-- Progress bar -->
+                                        <div class="h-1 bg-emerald-600 agri-progress"></div>
+                                    </div>
+                                    <% } %>
+
+                    </div>
+
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <button type="submit"
+                            class="bg-white border-2 border-gray-200 text-gray-600 hover:text-brand-green hover:border-brand-green px-6 py-2 rounded-xl font-bold shadow-sm hover:shadow transition duration-200">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <%- include("./partials/googletranslate") %>
+        <script>
+            const pincodeInput = document.getElementById('pincode');
+            const stateInput = document.getElementById('state');
+            const districtInput = document.getElementById('district');
+            const regionInput = document.getElementById('region');
+            const loader = document.getElementById('pincode-loader');
+            const icon = document.getElementById('pincode-icon');
+            const errorMsg = document.getElementById('pincode-error');
+            const successMsg = document.getElementById('pincode-success');
+
+            let debounceTimer;
+
+            pincodeInput.addEventListener('input', function (e) {
+                const pincode = e.target.value;
+
+                // Clear previous messages
+                errorMsg.classList.add('hidden');
+                successMsg.classList.add('hidden');
+
+                // Clear fields if pincode is less than 6 digits
+                if (pincode.length < 6) {
+                    stateInput.value = '';
+                    districtInput.value = '';
+                    regionInput.value = '';
+                    return;
+                }
+
+                // Only proceed if exactly 6 digits
+                if (pincode.length === 6) {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        fetchPincodeData(pincode);
+                    }, 500);
+                }
+            });
+
+            async function fetchPincodeData(pincode) {
+                // Show loader
+                loader.classList.remove('hidden');
+                icon.classList.add('hidden');
+
+                try {
+                    const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+                    const data = await response.json();
+
+                    // Hide loader
+                    loader.classList.add('hidden');
+                    icon.classList.remove('hidden');
+                    if (data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+                        // Find if any post office has BranchType 'Sub Post Office'
+                        const subPostOffice = data[0].PostOffice.find(po => po.BranchType === 'Sub Post Office');
+
+                        // Use the sub post office if found, otherwise use the first one
+                        const postOffice = subPostOffice || data[0].PostOffice[0];
+
+                        stateInput.value = postOffice.State || '';
+                        districtInput.value = postOffice.District || '';
+                        regionInput.value = postOffice.Block || '';
+
+                        // Show success message
+                        successMsg.textContent = '✓ Location details fetched successfully';
+                        successMsg.classList.remove('hidden');
+                    } else {
+                        // Show error
+                        errorMsg.textContent = 'Invalid pincode. Please check and try again.';
+                        errorMsg.classList.remove('hidden');
+
+                        // Clear fields
+                        stateInput.value = '';
+                        districtInput.value = '';
+                        regionInput.value = '';
+                    }
+                } catch (error) {
+                    console.error('Error fetching pincode data:', error);
+
+                    // Hide loader
+                    loader.classList.add('hidden');
+                    icon.classList.remove('hidden');
+
+                    // Show error
+                    errorMsg.textContent = 'Failed to fetch location. Please try again.';
+                    errorMsg.classList.remove('hidden');
+
+                    // Clear fields
+                    stateInput.value = '';
+                    districtInput.value = '';
+                    regionInput.value = '';
+                }
+            }
+        </script>
+        <script>
+            function removeAlert(alertId) {
+                const alert = document.getElementById(alertId);
+                if (alert) {
+                    alert.style.animation = 'popOut 0.3s ease-out forwards';
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }
+
+            // Auto-dismiss after 5 seconds
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(() => {
+                    const errorAlert = document.getElementById('agri-error');
+                    if (errorAlert) removeAlert('agri-error');
+                }, 1000);
+
+                setTimeout(() => {
+                    const successAlert = document.getElementById('agri-success');
+                    if (successAlert) removeAlert('agri-success');
+                }, 1000);
+            });
+        </script>
+        <script>
+            if (window.location.search) {
+                const url = new URL(window.location);
+                url.search = "";
+                window.history.replaceState({}, document.title, url.pathname);
+            }
+        </script>
+
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+</body>
+
+</html>

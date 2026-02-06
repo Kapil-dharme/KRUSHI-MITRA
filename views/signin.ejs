@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KRUSHIMITRA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <%- include("./partials/tailwind") %>
+
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                green: '#047857', // Emerald 700
+                                light: '#D1FAE5', // Emerald 100
+                                dark: '#064E3B',  // Emerald 900
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+        </style>
+
+        <style>
+            @keyframes popIn {
+                0% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05) translateX(0);
+                }
+
+                100% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes popOut {
+                0% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .agri-progress {
+                animation: agriProgress 5s linear forwards;
+            }
+
+            @keyframes agriProgress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-white">
+
+    <!-- Alert Container - Fixed at top right -->
+    <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+        <!-- Error Alert -->
+        <% if (locals.error) { %>
+            <div id="agri-error"
+                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                <!-- Header with icon -->
+                <div
+                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                    <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                    <button onclick="removeAlert('agri-error')"
+                        class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="px-4 py-3">
+                    <p class="text-sm text-gray-700">
+                        <%= locals.error %>
+                    </p>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="h-1 bg-red-500 agri-progress"></div>
+            </div>
+            <% } %>
+
+                <!-- Success Alert -->
+                <% if (locals.success) { %>
+                    <div id="agri-success"
+                        class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                        role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                        <!-- Header with icon -->
+                        <div
+                            class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                            <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                            <button onclick="removeAlert('agri-success')"
+                                class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="px-4 py-3">
+                            <p class="text-sm text-gray-700">
+                                <%= locals.success %>
+                            </p>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="h-1 bg-emerald-600 agri-progress"></div>
+                    </div>
+                    <% } %>
+
+    </div>
+
+    <div class="min-h-screen flex">
+
+        <div class="hidden lg:flex w-1/2 bg-brand-dark relative items-center justify-center overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=2071&auto=format&fit=crop"
+                class="absolute inset-0 w-full h-full object-cover opacity-40" alt="Farming Field">
+
+            <div class="relative z-10 text-white p-12 max-w-lg">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="bg-white/10 backdrop-blur-sm p-2 rounded-xl border border-white/20 inline-block">
+                        <img src="/logo.png" alt="KRUSHIMITRA Logo" class="h-12 w-auto">
+                    </div>
+                </div>
+
+                <h2 class="text-3xl font-semibold mb-4">Empowering Farmers with Intelligence.</h2>
+                <p class="text-emerald-100 text-lg leading-relaxed">
+                    Access real-time crop analytics, government schemes, and market rates tailored for the Vidarbha
+                    region.
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 flex flex-col justify-center py-12 px-6 sm:px-12 lg:px-24 bg-gray-50">
+
+            <div class="lg:hidden flex items-center gap-2 mb-8">
+                <i class="fa-solid fa-leaf text-brand-green text-2xl"></i>
+                <span class="text-2xl font-bold text-brand-green">KRUSHIMITRA</span>
+            </div>
+
+            <div class="w-full max-w-md mx-auto">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
+                <p class="text-gray-500 mb-8">Please enter your details to sign in.</p>
+
+                <form action="/user/signin" class="space-y-6" method="post" autocomplete="off">
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-regular fa-envelope text-gray-400"></i>
+                            </div>
+                            <input type="email" id="email" name="email"
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition sm:text-sm"
+                                placeholder="name@example.com" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="password" name="password"
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent transition sm:text-sm"
+                                placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <div class="text-sm">
+                            <a href="#" class="font-medium text-brand-green hover:text-brand-dark">Forgot
+                                password?</a>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-brand-green hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition duration-200">
+                        Sign in
+                    </button>
+
+                </form>
+
+                <p class="mt-8 text-center text-sm text-gray-600">
+                    Don't have an account?
+                    <a href="/user/signup" class="font-bold text-brand-green hover:text-brand-dark">Create
+                        Account</a>
+                </p>
+
+                <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                    <a href="/"
+                        class="text-xs text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function removeAlert(alertId) {
+            const alert = document.getElementById(alertId);
+            if (alert) {
+                alert.style.animation = 'popOut 0.3s ease-out forwards';
+                setTimeout(() => alert.remove(), 300);
+            }
+        }
+
+        // Auto-dismiss after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(() => {
+                const errorAlert = document.getElementById('agri-error');
+                if (errorAlert) removeAlert('agri-error');
+            }, 5000);
+
+            setTimeout(() => {
+                const successAlert = document.getElementById('agri-success');
+                if (successAlert) removeAlert('agri-success');
+            }, 5000);
+        });
+    </script>
+
+</body>
+
+</html>

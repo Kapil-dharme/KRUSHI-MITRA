@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriVision - Farmer Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    colors: {
+                        brand: {
+                            green: "#047857",
+                            light: "#D1FAE5",
+                            dark: "#064E3B",
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+        }
+    </style>
+    <style>
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8) translateX(100%);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.05) translateX(0);
+            }
+
+            100% {
+                transform: scale(1) translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popOut {
+            0% {
+                transform: scale(1) translateX(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.8) translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .agri-progress {
+            animation: agriProgress 5s linear forwards;
+        }
+
+        @keyframes agriProgress {
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <!-- Navigation Bar -->
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Home</a>
+            <a href="/about" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">About</a>
+            <a href="/contact" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Contact</a>
+
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+
+            <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                <div class="text-right hidden sm:block"></div>
+                <div
+                    class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                    <% const safeUser=user ?? {}; const fullName=safeUser.fullName ?? "Guest User" ; const
+                        names=fullName.trim().split(" ");
+
+    const initials = names.length > 1
+      ? names[0][0] + names[names.length - 1][0]
+      : names[0].slice(0, 2);
+  %>
+
+  <%= initials.toUpperCase() %>
+                </div>
+            </a>
+        </div>
+    </nav> 
+    <div id=" agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+                        <!-- Error Alert -->
+                        <% if (locals.error) { %>
+                            <div id="agri-error"
+                                class="bg-white rounded-xl shadow-xl border-2 border-red-200 overflow-hidden transform transition-all duration-300"
+                                role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                <!-- Header with icon -->
+                                <div
+                                    class="bg-gradient-to-r from-red-50 to-red-100 px-4 py-3 border-b border-red-200 flex items-center">
+                                    <div
+                                        class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center shadow-sm">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <p class="ml-3 text-sm font-bold text-red-900">Request Failed</p>
+                                    <button onclick="removeAlert(' agri-error')"
+                                        class="ml-auto text-red-400 hover:text-red-600 focus:outline-none">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="px-4 py-3">
+                                    <p class="text-sm text-gray-700">
+                                        <%= locals.error %>
+                                    </p>
+                                </div>
+
+                                <!-- Progress bar -->
+                                <div class="h-1 bg-red-500 agri-progress"></div>
+                            </div>
+                            <% } %>
+
+                                <!-- Success Alert -->
+                                <% if (locals.success) { %>
+                                    <div id="agri-success"
+                                        class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                                        role="alert"
+                                        style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                                        <!-- Header with icon -->
+                                        <div
+                                            class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                                            <div
+                                                class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                                            <button onclick="removeAlert('agri-success')"
+                                                class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Content -->
+                                        <div class="px-4 py-3">
+                                            <p class="text-sm text-gray-700">
+                                                <%= locals.success %>
+                                            </p>
+                                        </div>
+
+                                        <!-- Progress bar -->
+                                        <div class="h-1 bg-emerald-600 agri-progress"></div>
+                                    </div>
+                                    <% } %>
+
+                </div>
+                <!-- Main Content -->
+                <div class=" max-w-7xl mx-auto px-4 md:px-8 py-8">
+                    <!-- Page Header -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                                Welcome,<%= user?.fullName ? user?.fullName.split(" ")[0] : " User" %>!
+                                    <span class="text-2xl">🌾</span>
+                            </h1>
+                            <p class="text-gray-500">
+                                Here's what's happening on your
+                                <span class="font-semibold text-gray-700">
+                                    <%= user?.farmArea %> Acres
+                                </span> farm today
+                            </p>
+                            <p class="text-gray-400 text-sm mt-1 font-semibold text-gray-700">
+                                Region: <span id="displayDistrict">
+                                    <%= user?.region %>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Current Crop Card -->
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500 ">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                        Current Crop
+                                    </p>
+                                    <h3 id="currentCropDisplay" class="text-2xl font-bold text-gray-900 mt-1">
+                                        Cotton
+                                    </h3>
+                                    <button id="openCropModal"
+                                        class="inline-block mt-3 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded hover:bg-green-100 transition">
+                                        Select Current Crop ->
+                                    </button>
+                                </div>
+                                <div
+                                    class="bg-green-100 w-10 h-10 rounded-lg flex items-center justify-center text-green-600">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Soil Productivity Card -->
+                        <div id="soil-card" class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-yellow-500 ">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                        Soil Productivity
+                                    </p>
+                                    <h3 id="soil-status" class="text-2xl font-bold text-gray-900 mt-1">
+                                        Detecting...
+                                    </h3>
+                                    <span id="soil-detail"
+                                        class="inline-block mt-3 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded">
+                                        Awaiting Data
+                                    </span>
+                                </div>
+                                <div
+                                    class="bg-yellow-100 w-10 h-10 rounded-lg flex items-center justify-center text-yellow-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-activity" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Best for Soil Card -->
+                        <div id="crop-card" class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 ">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                        Best for Soil
+                                    </p>
+                                    <h3 id="recommended-crop" class="text-2xl font-bold text-gray-900 mt-1">
+                                        Analyzing...
+                                    </h3>
+                                    <span
+                                        class="inline-block mt-3 bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded">Recommended</span>
+                                </div>
+                                <div
+                                    class="bg-blue-100 w-10 h-10 rounded-lg flex items-center justify-center text-blue-600">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Crop Max Price Card -->
+                        <a href="/user/market" class="block">
+                            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-xs text-gray-500 font-semibold uppercase tracking-wider">
+                                            Max Price (<%= user?.district %>)
+                                        </p>
+                                        <h3 id="maxPriceDisplay" class="text-2xl font-bold text-gray-900 mt-1">
+                                            ₹7,250
+                                        </h3>
+                                        <p id="priceMarketDisplay" class="text-xs text-green-600 font-bold mt-3">
+                                            📍 <%= user?.region %> Market
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="bg-purple-100 w-10 h-10 rounded-lg flex items-center justify-center text-purple-600">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+
+                    <!-- Main Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- AI Crop Diagnosis -->
+                        <div
+                            class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-full flex flex-col justify-between">
+                            <div class="flex items-center gap-2 mb-6">
+                                <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-800 tracking-tight">AI Crop
+                                    Diagnosis</h3>
+                            </div>
+                            <form action="/user/aidisease" id="diseaseForm" method="post" enctype="multipart/form-data">
+                                <div class="flex flex-col md:flex-row gap-6 items-center">
+
+                                    <div id="uploadArea"
+                                        class="relative group w-full md:w-2/3 aspect-video md:aspect-auto md:h-60 border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50/30 flex flex-col items-center justify-center transition-all hover:border-emerald-400 hover:bg-emerald-50 overflow-hidden">
+
+                                        <!-- Upload Placeholder -->
+                                        <div id="uploadPlaceholder"
+                                            class="flex flex-col items-center justify-center pointer-events-none">
+                                            <div
+                                                class="p-3 bg-white rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-500"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </div>
+
+
+                                            <p class="text-sm font-semibold text-slate-700">Upload or Take Photo</p>
+                                            <p class="text-[11px] text-slate-500 mt-1 px-4 text-center">Detect leaf
+                                                diseases
+                                                instantly using
+                                                AI</p>
+                                        </div>
+                                        <img id="previewImage"
+                                            class="absolute inset-0 w-full h-full object-cover rounded-xl hidden" />
+
+
+                                        <input type="file" id="cropImageInput" name="cropimageurl"
+                                            class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                                    </div>
+
+                                    <div class="flex flex-col gap-3 w-full md:w-1/3">
+                                        <label for="cropImageInput" class="w-full cursor-pointer">
+                                            <div
+                                                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2">
+                                                <span>Select Image</span>
+                                            </div>
+                                        </label>
+
+
+                                        <button id="viewReportBtn" type="submit"
+                                            class="w-full bg-white border-2 border-slate-100 hover:border-emerald-100 hover:bg-emerald-50 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>View Report</span>
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Weather Widget -->
+                        <div
+                            class="bg-[#10b981] text-white p-6 rounded-2xl shadow-sm h-full flex flex-col justify-between relative overflow-hidden">
+
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium opacity-90 mb-4" id="city">
+                                    <%= user?.district %> Weather
+                                </h3>
+
+                                <div class="flex items-stretch justify-between gap-4">
+                                    <div class="flex items-center gap-4 flex-1">
+                                        <span class="text-7xl font-bold tracking-tighter" id="temp">27°C</span>
+                                        <div class="flex flex-col border-l border-white/20 pl-4">
+                                            <span class="text-xl font-semibold leading-tight"
+                                                id="condition">Partly<br />Cloudy</span>
+                                            <i class="fa-solid fa-sun" id="icon"></i>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-white/15 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 flex flex-col items-center justify-center min-w-[110px] shadow-inner">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-200 mb-2"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 16.91c1.37-1.16 2.25-2.85 2.25-4.74 0-3.44-2.79-6.23-6.23-6.23-1.04 0-2.02.26-2.88.71C11.1 5.37 9.17 4.5 7.02 4.5 3.69 4.5 1 7.19 1 10.52c0 2.22 1.2 4.15 3 5.2M8 13v.01M12 15v.01M8 17v.01M12 19v.01M16 17v.01M16 13v.01">
+                                            </path>
+                                        </svg>
+                                        <span
+                                            class="text-[11px] uppercase font-bold tracking-widest opacity-80">Precipitation</span>
+                                        <span class="text-2xl font-black text-blue-50" id="precipitation">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div
+                                    class="bg-white/10 backdrop-blur-md p-4 rounded-xl flex flex-col items-center justify-center border border-white/10 transition-all hover:bg-white/20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2 text-blue-200"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    <span
+                                        class="text-xs uppercase tracking-wider opacity-70 font-semibold">Humidity</span>
+                                    <span class="text-lg font-bold" id="humidity">40.9%</span>
+                                </div>
+
+                                <div
+                                    class="bg-white/10 backdrop-blur-md p-4 rounded-xl flex flex-col items-center justify-center border border-white/10 transition-all hover:bg-white/20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-2 text-teal-100"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                    <span class="text-xs uppercase tracking-wider opacity-70 font-semibold">Wind
+                                        Speed</span>
+                                    <span class="text-lg font-bold" id="wind">2.2 km/h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Live Mandi Rates - FULL WIDTH -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden w-full">
+                        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800 text-lg">
+                                Live Mandi Rates (<span id="tableDistrictName">---</span>)
+                            </h3>
+                            <div class="mandi-view-all" style="display: none">
+                                <a href="#"
+                                    class="text-sm text-emerald-600 font-semibold hover:text-emerald-700 transition">View
+                                    All →</a>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th
+                                            class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Crop
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Variety
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Min Price
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Max Price
+                                        </th>
+                                        <th
+                                            class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mandiTableBody" class="text-sm divide-y divide-gray-100">
+                                    <!-- Dynamically populated -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crop Modal -->
+                <div id="cropModal"
+                    class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div
+                        class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+                        <div class="bg-brand-green px-6 py-4 flex justify-between items-center">
+                            <h3 class="text-white font-bold text-lg">Select Current Crop</h3>
+                            <button id="closeModalBtn" class="text-green-100 hover:text-white transition">
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </button>
+                        </div>
+
+                        <form id="cropForm" class="p-6 space-y-4">
+                            <!-- Crop Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select
+                                    Crop</label>
+                                <select id="cropSelect"
+                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-brand-green focus:ring focus:ring-green-200 p-2.5 border bg-gray-50">
+                                    <option>Loading crops...</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-2">
+                                    💡 Showing crops available in
+                                    <strong id="districtLabel">
+                                        <%=user?.district%>
+                                    </strong> district
+                                </p>
+                            </div>
+
+                            <!-- Max Price Info Display -->
+                            <div id="maxPriceInfo" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-2">
+                                    <strong>Max Price in District:</strong>
+                                </p>
+                                <p class="text-2xl font-bold text-green-700" id="modalMaxPrice">
+                                    ₹0
+                                </p>
+                                <p class="text-xs text-gray-500 mt-2" id="modalMarketInfo">
+                                    Market: -
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1" id="modalDistrictInfo">
+                                    District: -
+                                </p>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex gap-3 mt-6 pt-2">
+                                <button type="button" id="cancelBtn"
+                                    class="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+                                    Cancel
+                                </button>
+                                <button type="submit" id="confirmCropBtn"
+                                    class="flex-1 py-2.5 bg-brand-green text-white rounded-lg font-medium hover:bg-emerald-800 transition shadow-lg shadow-green-200">
+                                    Confirm Crop
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+                    // ================================
+                    // GLOBAL VARIABLES & API URL
+                    // ================================
+                    let apiData = [];
+                    let allDistricts = [];
+                    let selectedDistrict = "<%=user?.district%>";
+                    let allCropsData = [];
+                    let showAllCrops = false;
+                    const API_URL =
+                        "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=579b464db66ec23bdd000001634a3f03ce6149eb6de9fd4e8f57efb0&offset=0&limit=9000&format=csv&format=json";
+
+                    // ================================
+                    // DOM ELEMENTS
+                    // ================================
+                    const cropModal = document.getElementById("cropModal");
+                    const openBtn = document.getElementById("openCropModal");
+                    const closeBtn = document.getElementById("closeModalBtn");
+                    const cancelBtn = document.getElementById("cancelBtn");
+                    const confirmBtn = document.getElementById("confirmCropBtn");
+                    const cropSelect = document.getElementById("cropSelect");
+                    const cropForm = document.getElementById("cropForm");
+                    const maxPriceInfo = document.getElementById("maxPriceInfo");
+                    const modalMaxPrice = document.getElementById("modalMaxPrice");
+                    const modalMarketInfo = document.getElementById("modalMarketInfo");
+                    const modalDistrictInfo = document.getElementById("modalDistrictInfo");
+                    const currentCropDisplay = document.getElementById("currentCropDisplay");
+                    const maxPriceDisplay = document.getElementById("maxPriceDisplay");
+                    const priceMarketDisplay = document.getElementById("priceMarketDisplay");
+                    const displayDistrict = document.getElementById("displayDistrict");
+                    const districtLabel = document.getElementById("districtLabel");
+                    const mandiTableBody = document.getElementById("mandiTableBody");
+                    const tableDistrictName = document.getElementById("tableDistrictName");
+
+                    // ================================
+                    // STEP 1: FETCH API DATA
+                    // ================================
+                    async function fetchAPIData() {
+                        try {
+                            const res = await fetch(API_URL);
+                            const json = await res.json();
+                            apiData = json.records;
+                            console.log("✅ Total API records fetched:", apiData.length);
+
+                            // populateDistricts();
+                            populateCrops() //- Only call this when modal opens, not on page load
+                            populateMandiRates();
+                            updateDistrictDisplay();
+                        } catch (error) {
+                            console.error("❌ Error fetching API data:", error);
+                            alert("Error loading data. Please refresh the page.");
+                        }
+                    }
+
+                    // Show loading state
+                    openBtn.addEventListener("click", () => {
+                        // Reset state
+                        cropSelect.innerHTML = "<option>Loading crops...</option>";
+                        cropSelect.disabled = true;
+                        maxPriceInfo.classList.add("hidden"); // ← ADD THIS
+                        districtLabel.textContent = selectedDistrict; // ← ADD THIS
+
+                        // Open modal
+                        cropModal.classList.remove("hidden");
+
+                        // Load crops with delay
+                        setTimeout(() => {
+                            populateCrops();
+                            cropSelect.disabled = false;
+                        }, 1500);
+                    });
+                    // ================================
+                    // STEP 2: POPULATE DISTRICTS
+                    // ================================
+                    function populateDistricts() {
+                        const districts = [
+                            ...new Set(apiData.map((r) => r.district?.trim()).filter(Boolean)),
+                        ].sort();
+
+                        allDistricts = districts;
+                        console.log("✅ Total unique districts:", districts.length);
+                    }
+
+                    // ================================
+                    // STEP 3: POPULATE CROPS BY DISTRICT
+                    // ================================
+                    function populateCrops() {
+                        const crops = [
+                            ...new Set(
+                                apiData
+                                    .filter((record) => record.district?.trim() === selectedDistrict)
+                                    .map((r) => r.commodity?.trim())
+                                    .filter(Boolean),
+                            ),
+                        ].sort();
+
+                        cropSelect.innerHTML = '<option value="">Select Crop</option>';
+
+                        if (crops.length === 0) {
+                            cropSelect.innerHTML +=
+                                "<option disabled>No crops available in this district</option>";
+                            return;
+                        }
+
+                        crops.forEach((crop) => {
+                            const option = document.createElement("option");
+                            option.value = crop;
+                            option.textContent = crop;
+                            cropSelect.appendChild(option);
+                        });
+                    }
+
+                    // ================================
+                    // STEP 3B: UPDATE ALL DISTRICT DISPLAYS
+                    // ================================
+                    function updateDistrictDisplay() {
+                        displayDistrict.textContent = selectedDistrict;
+                        districtLabel.textContent = selectedDistrict;
+                        tableDistrictName.textContent = selectedDistrict;
+                        console.log("✅ All district displays updated to:", selectedDistrict);
+                    }
+
+                    // ================================
+                    // STEP 4: GET DEMAND STATUS
+                    // ================================
+                    function getDemandStatus(minPrice, maxPrice) {
+                        const priceDifference = maxPrice - minPrice;
+
+                        if (priceDifference > 500) {
+                            return {
+                                status: "High Demand",
+                                color: "bg-green-100 text-green-700",
+                            };
+                        } else if (priceDifference >= 250 && priceDifference <= 500) {
+                            return {
+                                status: "Stable",
+                                color: "bg-yellow-100 text-yellow-700",
+                            };
+                        } else {
+                            return {
+                                status: "Falling",
+                                color: "bg-red-100 text-red-700",
+                            };
+                        }
+                    }
+
+                    // ================================
+                    // STEP 5: POPULATE MANDI RATES TABLE
+                    // ================================
+                    function populateMandiRates() {
+                        const cropsInDistrict = [
+                            ...new Set(
+                                apiData
+                                    .filter((record) => record.district?.trim() === selectedDistrict)
+                                    .map((r) => r.commodity?.trim())
+                                    .filter(Boolean),
+                            ),
+                        ].sort();
+
+                        console.log(
+                            "✅ Crops in " + selectedDistrict + ":",
+                            cropsInDistrict.length,
+                        );
+
+                        mandiTableBody.innerHTML = "";
+                        tableDistrictName.textContent = selectedDistrict;
+
+                        if (cropsInDistrict.length === 0) {
+                            mandiTableBody.innerHTML =
+                                '<tr><td colspan="5" class="text-center py-8 text-gray-500">No crops available in this district</td></tr>';
+                            return;
+                        }
+
+                        allCropsData = [];
+
+                        cropsInDistrict.forEach((crop) => {
+                            const cropRecords = apiData.filter(
+                                (record) =>
+                                    record.district?.trim() === selectedDistrict &&
+                                    record.commodity?.trim() === crop,
+                            );
+
+                            if (cropRecords.length === 0) return;
+
+                            const varieties = [
+                                ...new Set(
+                                    cropRecords.map((r) => r.variety?.trim()).filter(Boolean),
+                                ),
+                            ];
+                            const prices = cropRecords
+                                .map((r) => Number(r.modal_price))
+                                .filter((p) => !isNaN(p));
+
+                            if (prices.length === 0) return;
+
+                            const minPrice = Math.min(...prices);
+                            const maxPrice = Math.max(...prices);
+                            const variety = varieties.length > 0 ? varieties[0] : "-";
+                            const demandStatus = getDemandStatus(minPrice, maxPrice);
+
+                            allCropsData.push({
+                                crop: crop,
+                                variety: variety,
+                                minPrice: minPrice,
+                                maxPrice: maxPrice,
+                                demandStatus: demandStatus,
+                                priceDifference: maxPrice - minPrice,
+                            });
+                        });
+
+                        // Sort by demand status
+                        allCropsData.sort((a, b) => {
+                            const demandOrder = { "High Demand": 0, Stable: 1, Falling: 2 };
+                            const orderA = demandOrder[a.demandStatus.status];
+                            const orderB = demandOrder[b.demandStatus.status];
+
+                            if (orderA !== undefined && orderB !== undefined) {
+                                return orderA - orderB;
+                            }
+                            return b.priceDifference - a.priceDifference;
+                        });
+
+                        // Display crops
+                        const cropsToDisplay = showAllCrops
+                            ? allCropsData
+                            : allCropsData.slice(0, 3);
+
+                        cropsToDisplay.forEach((cropData) => {
+                            const row = document.createElement("tr");
+                            row.className = "hover:bg-gray-50 transition";
+                            row.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-gray-900">${cropData.crop}</td>
+                    <td class="px-6 py-4 text-gray-600">${cropData.variety}</td>
+                    <td class="px-6 py-4 text-gray-500">₹${cropData.minPrice.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-emerald-600 font-bold">₹${cropData.maxPrice.toLocaleString()}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cropData.demandStatus.color}">
+                            ${cropData.demandStatus.status}
+                        </span>
+                    </td>
+                `;
+                            mandiTableBody.appendChild(row);
+                        });
+
+                        // Update "View All" button
+                        const viewAllLink = document.querySelector(".mandi-view-all");
+                        if (viewAllLink) {
+                            if (allCropsData.length > 3) {
+                                viewAllLink.style.display = "block";
+                                viewAllLink.innerHTML = showAllCrops
+                                    ? '<a href="#" class="text-sm text-emerald-600 font-semibold hover:text-emerald-700 transition">View Less ↑</a>'
+                                    : '<a href="#" class="text-sm text-emerald-600 font-semibold hover:text-emerald-700 transition">View All →</a>';
+                            } else {
+                                viewAllLink.style.display = "none";
+                            }
+                        }
+
+                        console.log("✅ Mandi rates table populated");
+                    }
+
+                    // ================================
+                    // STEP 6: CALCULATE MAX PRICE
+                    // ================================
+                    function getMaxPrice(district, crop) {
+                        const filteredRecords = apiData.filter((record) => {
+                            const recordDistrict = record.district?.trim();
+                            const recordCommodity = record.commodity?.trim();
+                            return recordDistrict === district && recordCommodity === crop;
+                        });
+
+                        if (filteredRecords.length === 0) {
+                            return {
+                                maxPrice: null,
+                                market: null,
+                                data: [],
+                            };
+                        }
+
+                        let maxPrice = 0;
+                        let maxMarket = "";
+
+                        filteredRecords.forEach((record) => {
+                            const price = Number(record.modal_price);
+                            if (price > maxPrice) {
+                                maxPrice = price;
+                                maxMarket = record.market?.trim();
+                            }
+                        });
+
+                        return {
+                            maxPrice: maxPrice,
+                            market: maxMarket,
+                            data: filteredRecords,
+                        };
+                    }
+
+                    // ================================
+                    // STEP 7: UPDATE DISPLAY
+                    // ================================
+                    function updateMaxPriceDisplay(district, crop) {
+                        if (!district || !crop) {
+                            maxPriceInfo.classList.add("hidden");
+                            return;
+                        }
+
+                        const result = getMaxPrice(district, crop);
+
+                        if (result.maxPrice === null) {
+                            maxPriceInfo.classList.add("hidden");
+                            alert(`No data found for ${crop} in ${district}`);
+                            return;
+                        }
+
+                        // Update modal display
+                        maxPriceInfo.classList.remove("hidden");
+                        modalMaxPrice.textContent = `₹${result.maxPrice.toLocaleString()}`;
+                        modalMarketInfo.textContent = `📍 Market: ${result.market}`;
+                        modalDistrictInfo.textContent = `📍 District: ${district}`;
+
+                        // Update dashboard cards
+                        currentCropDisplay.textContent = crop;
+                        displayDistrict.textContent = district;
+                        maxPriceDisplay.textContent = `₹${result.maxPrice.toLocaleString()}`;
+                        priceMarketDisplay.textContent = `📍 ${result.market}`;
+                    }
+
+                    // ================================
+                    // EVENT LISTENERS
+                    // ================================
+
+                    // View All / View Less toggle
+                    document.addEventListener("click", (e) => {
+                        if (e.target.closest(".mandi-view-all a")) {
+                            e.preventDefault();
+                            showAllCrops = !showAllCrops;
+                            populateMandiRates();
+                        }
+                    });
+
+                    // Crop change listener
+                    cropSelect.addEventListener("change", () => {
+                        const crop = cropSelect.value;
+                        if (crop && selectedDistrict) {
+                            updateMaxPriceDisplay(selectedDistrict, crop);
+                        }
+                    });
+
+                    // Open modal
+                    // openBtn.addEventListener("click", () => {
+                    //   console.log("✅ Modal opened for district:", selectedDistrict);
+                    //   cropSelect.value = "";
+                    //   maxPriceInfo.classList.add("hidden");
+                    //   districtLabel.textContent = selectedDistrict;
+                    //   cropModal.classList.remove("hidden");
+                    //   populateCrops();
+                    // });
+
+                    // Close modal functions
+                    const closeModalFunc = () => {
+                        cropModal.classList.add("hidden");
+                    };
+
+                    closeBtn.addEventListener("click", closeModalFunc);
+                    cancelBtn.addEventListener("click", closeModalFunc);
+
+                    // Close on outside click
+                    cropModal.addEventListener("click", (e) => {
+                        if (e.target === cropModal) {
+                            closeModalFunc();
+                        }
+                    });
+
+                    // Form submit - CONFIRM CROP
+                    cropForm.addEventListener("submit", (e) => {
+                        e.preventDefault();
+                        const crop = cropSelect.value;
+
+                        if (!crop) {
+                            alert("Please select a crop");
+                            return;
+                        }
+
+                        console.log("✅ Confirm Crop clicked");
+                        console.log("📌 District:", selectedDistrict);
+                        console.log("🌾 Crop:", crop);
+
+                        // Update the display
+                        updateMaxPriceDisplay(selectedDistrict, crop);
+
+                        // Close modal
+                        closeModalFunc();
+                    });
+
+                    // ================================
+                    // INITIALIZE
+                    // ================================
+                    window.addEventListener("DOMContentLoaded", () => {
+                        console.log("🚀 Page loaded - Fetching data...");
+                        fetchAPIData();
+                    });
+                </script>
+
+                <!-- Weather Script -->
+                <script>
+                    (async function loadWeather() {
+                        try {
+                            // 1️⃣ City from EJS
+                            const city = "<%= user?.district %>";
+                            if (!city) throw new Error("Region not available");
+
+                            /* ================= GEO CODING ================= */
+                            const geoRes = await fetch(
+                                `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+                            );
+                            const geoData = await geoRes.json();
+
+                            if (!geoData.results || geoData.results.length === 0)
+                                throw new Error("City not found");
+
+                            const { latitude, longitude, name } = geoData.results[0];
+
+                            /* ================= MET NORWAY (PRIMARY SOURCE) ================= */
+                            const norwayRes = await fetch(
+                                `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${latitude}&lon=${longitude}`,
+                                {
+                                    headers: {
+                                        "User-Agent": "AgriVision/1.0 (contact: demo@example.com)"
+                                    }
+                                }
+                            );
+                            const norwayData = await norwayRes.json();
+
+                            const ts = norwayData.properties.timeseries[0];
+                            const instant = ts.data.instant.details;
+
+                            const symbol =
+                                ts.data.next_1_hours?.summary?.symbol_code || "cloudy";
+
+                            /* ================= OPEN-METEO (FALLBACK TEMP) ================= */
+                            let temperature = instant.air_temperature;
+
+
+                            const meteoRes = await fetch(
+                                `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,precipitation&hourly=precipitation_probability&forecast_days=1`
+                            );
+                            const meteoData = await meteoRes.json();
+                            if (temperature === undefined) {
+                                temperature = meteoData.current.temperature_2m;
+                            }
+
+                            /* ================= WEATHER SYMBOL MAP ================= */
+                            const symbolMap = {
+                                clearsky_day: "Clear Sky ☀️",
+                                clearsky_night: "Clear Night 🌙",
+                                partlycloudy_day: "Partly Cloudy ⛅",
+                                partlycloudy_night: "Partly Cloudy 🌙",
+                                cloudy: "Cloudy ☁️",
+                                fog: "Fog 🌫️",
+                                lightrain: "Light Rain 🌦️",
+                                rain: "Rain 🌧️",
+                                heavyrain: "Heavy Rain 🌧️",
+                                snow: "Snow ❄️",
+                                thunderstorm: "Thunderstorm ⛈️"
+                            };
+
+                            /* ================= UI UPDATE ================= */
+                            document.getElementById("city").innerText = `${name} Weather`;
+
+                            document.getElementById("temp").innerText =
+                                `${Math.round(temperature)}°C`;
+
+                            document.getElementById("condition").innerText =
+                                symbolMap[symbol] || "Weather Update";
+
+                            document.getElementById("humidity").innerText =
+                                `Humidity: ${instant.relative_humidity}%`;
+
+                            document.getElementById("wind").innerText =
+                                `Wind: ${instant.wind_speed} km/h`;
+                            document.getElementById("precipitation").innerText =
+                                `${meteoData.current.precipitation || 0} mm`;
+
+                        } catch (err) {
+                            console.error("Weather error:", err.message);
+                        }
+
+
+                    })();
+                </script>
+
+                <!-- Soil Intelligence Script -->
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        console.log("AgriVision Smart Crop Engine Loaded");
+
+                        /* ================= HARD CODED SOIL MOISTURE ================= */
+                        const HARD_CODED_SOIL_DATA = {
+                            /* ===== MAHARASHTRA ===== */
+                            Amravati: 0.22,
+                            Nagpur: 0.2,
+                            Pune: 0.18,
+                            Mumbai: 0.32,
+                            Nashik: 0.21,
+                            Aurangabad: 0.19,
+                            Solapur: 0.16,
+                            Kolhapur: 0.28,
+                            Satara: 0.26,
+                            Jalgaon: 0.17,
+                            Akola: 0.18,
+                            Yavatmal: 0.21,
+
+                            /* ===== MADHYA PRADESH ===== */
+                            Indore: 0.17,
+                            Bhopal: 0.18,
+                            Ujjain: 0.19,
+                            Gwalior: 0.16,
+                            Jabalpur: 0.22,
+                            Rewa: 0.23,
+                            Sagar: 0.2,
+
+                            /* ===== GUJARAT ===== */
+                            Ahmedabad: 0.15,
+                            Surat: 0.24,
+                            Vadodara: 0.2,
+                            Rajkot: 0.17,
+                            Bhavnagar: 0.18,
+                            Jamnagar: 0.16,
+                            Junagadh: 0.21,
+
+                            /* ===== RAJASTHAN ===== */
+                            Jaipur: 0.14,
+                            Jodhpur: 0.12,
+                            Udaipur: 0.19,
+                            Kota: 0.18,
+                            Bikaner: 0.11,
+                            Ajmer: 0.15,
+                            Alwar: 0.16,
+
+                            /* ===== UTTAR PRADESH ===== */
+                            Lucknow: 0.24,
+                            Kanpur: 0.22,
+                            Varanasi: 0.25,
+                            Prayagraj: 0.23,
+                            Meerut: 0.21,
+                            Agra: 0.19,
+                            Bareilly: 0.26,
+                            Gorakhpur: 0.28,
+                            Jhansi: 0.18,
+
+                            /* ===== BIHAR ===== */
+                            Patna: 0.31,
+                            Gaya: 0.27,
+                            Bhagalpur: 0.33,
+                            Muzaffarpur: 0.3,
+                            Purnia: 0.34,
+                            Darbhanga: 0.32,
+
+                            /* ===== TELANGANA ===== */
+                            Hyderabad: 0.23,
+                            Warangal: 0.21,
+                            Nizamabad: 0.22,
+                            Karimnagar: 0.2,
+                            Khammam: 0.25,
+
+                            /* ===== ANDHRA PRADESH ===== */
+                            Vijayawada: 0.27,
+                            Guntur: 0.28,
+                            Kurnool: 0.19,
+                            Anantapur: 0.17,
+                            Nellore: 0.3,
+                            Visakhapatnam: 0.31,
+
+                            /* ===== KARNATAKA ===== */
+                            Bengaluru: 0.26,
+                            Mysuru: 0.28,
+                            Hubballi: 0.22,
+                            Belagavi: 0.24,
+                            Ballari: 0.19,
+                            Kalaburagi: 0.2,
+                            Davanagere: 0.23,
+
+                            /* ===== TAMIL NADU ===== */
+                            Chennai: 0.29,
+                            Coimbatore: 0.27,
+                            Madurai: 0.25,
+                            Salem: 0.24,
+                            Tiruchirappalli: 0.23,
+                            Erode: 0.26,
+                            Thanjavur: 0.3,
+
+                            /* ===== KERALA ===== */
+                            Thiruvananthapuram: 0.38,
+                            Kollam: 0.37,
+                            Kottayam: 0.36,
+                            Ernakulam: 0.35,
+                            Thrissur: 0.34,
+                            Palakkad: 0.31,
+                            Malappuram: 0.33,
+
+                            /* ===== WEST BENGAL ===== */
+                            Kolkata: 0.34,
+                            Howrah: 0.33,
+                            Hooghly: 0.32,
+                            Bardhaman: 0.3,
+                            Murshidabad: 0.31,
+                            Malda: 0.29,
+                            "Cooch Behar": 0.35,
+
+                            /* ===== ODISHA ===== */
+                            Bhubaneswar: 0.28,
+                            Cuttack: 0.29,
+                            Puri: 0.31,
+                            Sambalpur: 0.23,
+                            Balasore: 0.3,
+
+                            /* ===== CHHATTISGARH ===== */
+                            Raipur: 0.26,
+                            Bilaspur: 0.27,
+                            Durg: 0.25,
+                            Korba: 0.28,
+
+                            /* ===== JHARKHAND ===== */
+                            Ranchi: 0.29,
+                            Dhanbad: 0.24,
+                            Jamshedpur: 0.27,
+
+                            /* ===== PUNJAB ===== */
+                            Ludhiana: 0.28,
+                            Amritsar: 0.3,
+                            Patiala: 0.27,
+                            Jalandhar: 0.29,
+
+                            /* ===== HARYANA ===== */
+                            Gurgaon: 0.18,
+                            Faridabad: 0.19,
+                            Hisar: 0.21,
+                            Karnal: 0.24,
+
+                            /* ===== ASSAM ===== */
+                            Guwahati: 0.36,
+                            Dibrugarh: 0.38,
+                            Silchar: 0.35,
+
+                            /* ===== HIMACHAL PRADESH ===== */
+                            Shimla: 0.31,
+                            Kangra: 0.29,
+                            Solan: 0.28,
+
+                            /* ===== JAMMU & KASHMIR ===== */
+                            Srinagar: 0.33,
+                            Jammu: 0.27,
+                        };
+
+                        /* ================= FAMOUS CROPS + REQUIREMENTS ================= */
+                        const FAMOUS_CROPS_BY_CITY = {
+                            Nagpur: { crop: "Orange 🍊", min: 0.18, max: 0.28 },
+                            Nashik: { crop: "Grapes 🍇", min: 0.2, max: 0.3 },
+                            Jalgaon: { crop: "Banana 🍌", min: 0.25, max: 0.4 },
+                            Kolhapur: { crop: "Sugarcane", min: 0.28, max: 0.45 },
+                            Guntur: { crop: "Chilli 🌶️", min: 0.22, max: 0.32 },
+                            Amravati: { crop: "Cotton", min: 0.18, max: 0.3 },
+                            Indore: { crop: "Soybean", min: 0.18, max: 0.28 },
+                            Muzaffarpur: { crop: "Litchi 🍒", min: 0.25, max: 0.35 },
+                            Thanjavur: { crop: "Rice 🌾", min: 0.3, max: 0.45 },
+                            Guwahati: { crop: "Tea 🍃", min: 0.3, max: 0.45 },
+                            Srinagar: { crop: "Apple 🍎", min: 0.22, max: 0.32 },
+                            Jammu: { crop: "Rice/Wheat 🌾", min: 0.23, max: 0.30 },
+                        };
+
+                        async function fetchAgriIntelligence() {
+                            try {
+                                let city = "<%=user?.district%>".trim();
+                                if (!city || city.includes("<" + "%")) city = "Nashik";
+
+                                console.log("City:", city);
+
+                                let moisture;
+
+                                /* ===== STEP 1: USE HARD CODED DATA ===== */
+                                if (HARD_CODED_SOIL_DATA[city]) {
+                                    moisture = HARD_CODED_SOIL_DATA[city];
+                                } else {
+                                    // API fallback (rare case)
+                                    const geoRes = await fetch(
+                                        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`,
+                                    );
+                                    const geoData = await geoRes.json();
+                                    const { latitude, longitude } = geoData.results[0];
+
+                                    const res = await fetch(
+                                        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=soil_moisture_0_to_7cm&timezone=auto`,
+                                    );
+                                    const data = await res.json();
+                                    moisture =
+                                        data.hourly.soil_moisture_0_to_7cm[new Date().getHours()];
+                                }
+
+                                console.log("Soil Moisture:", moisture);
+
+                                /* ================= UI ELEMENTS ================= */
+                                const statusEl = document.getElementById("soil-status");
+                                const detailEl = document.getElementById("soil-detail");
+                                const cropEl = document.getElementById("recommended-crop");
+                                const soilCard = document.getElementById("soil-card");
+
+                                /* ================= NORMAL CROP (FALLBACK) ================= */
+                                let normalCrop;
+                                if (moisture >= 0.35) normalCrop = "Rice / Sugarcane";
+                                else if (moisture > 0.18) normalCrop = "Cotton / Soybean";
+                                else normalCrop = "Millets / Sorghum";
+
+                                /* ================= SMART FAMOUS CROP LOGIC ================= */
+                                let finalCrop = normalCrop;
+
+                                if (FAMOUS_CROPS_BY_CITY[city]) {
+                                    const { crop, min, max } = FAMOUS_CROPS_BY_CITY[city];
+
+                                    if (moisture >= min && moisture <= max) {
+                                        finalCrop = crop; // ✅ Famous crop wins
+                                    }
+                                }
+
+                                /* ================= UI STYLE ================= */
+                                if (moisture >= 0.34) {
+                                    statusEl.innerText = "High";
+                                    detailEl.innerText = "Moisture Rich";
+                                    soilCard.className =
+                                        "bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500";
+                                    detailEl.className =
+                                        "inline-block mt-3 bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded";
+                                } else if (moisture > 0.18) {
+                                    statusEl.innerText = "Optimal";
+                                    detailEl.innerText = "Balanced Soil";
+                                    soilCard.className =
+                                        "bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500";
+                                    detailEl.className =
+                                        "inline-block mt-3 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded";
+                                } else {
+                                    statusEl.innerText = "Low";
+                                    detailEl.innerText = "Dry / Loamy";
+                                    soilCard.className =
+                                        "bg-white p-5 rounded-xl shadow-sm border-l-4 border-orange-500";
+                                    detailEl.className =
+                                        "inline-block mt-3 bg-orange-50 text-orange-700 text-xs font-semibold px-2.5 py-1 rounded";
+                                }
+
+                                cropEl.innerText = finalCrop;
+                            } catch (err) {
+                                console.error("KrushiMitra Error:", err);
+                                document.getElementById("soil-status").innerText = "Unavailable";
+                            }
+                        }
+
+                        fetchAgriIntelligence();
+                    });
+                </script>
+                <%- include("./partials/googletranslate") %>
+                    <script>
+                        function removeAlert(alertId) {
+                            const alert = document.getElementById(alertId);
+                            if (alert) {
+                                alert.style.animation = 'popOut 0.3s ease-out forwards';
+                                setTimeout(() => alert.remove(), 300);
+                            }
+                        }
+
+                        // Auto-dismiss after 5 seconds
+                        document.addEventListener('DOMContentLoaded', function () {
+                            setTimeout(() => {
+                                const errorAlert = document.getElementById('agri-error');
+                                if (errorAlert) removeAlert('agri-error');
+                            }, 2000);
+
+                            setTimeout(() => {
+                                const successAlert = document.getElementById('agri-success');
+                                if (successAlert) removeAlert('agri-success');
+                            }, 2000);
+                        });
+                    </script>
+
+                    <script>
+                        const cropImageInput = document.getElementById('cropImageInput');
+                        const previewImage = document.getElementById('previewImage');
+                        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+                        const viewReportBtn = document.getElementById('viewReportBtn');
+
+                        // Preview image when selected
+                        cropImageInput.addEventListener('change', function (e) {
+                            const file = e.target.files[0];
+
+                            if (file && file.type.startsWith('image/')) {
+                                const reader = new FileReader();
+
+                                reader.onload = function (event) {
+                                    previewImage.src = event.target.result;
+                                    previewImage.classList.remove('hidden');
+                                    uploadPlaceholder.classList.add('hidden');
+                                };
+
+                                reader.readAsDataURL(file);
+                            } else {
+                                alert('⚠️ Please upload a valid crop image');
+                            }
+                        });
+
+                        // Optional: Validate before submit
+                        document.getElementById('diseaseForm').addEventListener('submit', function (e) {
+                            if (!cropImageInput.files || cropImageInput.files.length === 0) {
+                                e.preventDefault();
+                                alert('⚠️ Please select a crop image first');
+                                return false;
+                            }
+                        });
+                    </script>
+</body>
+
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOME - KRUSHIMITRA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <%- include("./partials/tailwind") %>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                green: '#047857', // Emerald 700
+                                light: '#D1FAE5', // Emerald 100
+                                dark: '#064E3B',  // Emerald 900
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+
+            @keyframes blob {
+
+                0%,
+                100% {
+                    transform: translate(0, 0) scale(1);
+                }
+
+                33% {
+                    transform: translate(30px, -50px) scale(1.1);
+                }
+
+                66% {
+                    transform: translate(-20px, 20px) scale(0.9);
+                }
+            }
+
+            .animate-blob {
+                animation: blob 7s infinite;
+            }
+        </style>
+        <style>
+            @keyframes popIn {
+                0% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.05) translateX(0);
+                }
+
+                100% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes popOut {
+                0% {
+                    transform: scale(1) translateX(0);
+                    opacity: 1;
+                }
+
+                100% {
+                    transform: scale(0.8) translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            .agri-progress {
+                animation: agriProgress 5s linear forwards;
+            }
+
+            @keyframes agriProgress {
+                from {
+                    width: 100%;
+                }
+
+                to {
+                    width: 0%;
+                }
+            }
+        </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- FIXED NAVBAR -->
+    <nav class="w-full bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center cursor-pointer" style="object-fit: cover;">
+            <img src="/logo.png" alt="Krushimitra Logo" class="h-12" />
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-brand-green font-bold hidden md:block">Home</a>
+            <a href="/about" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">About</a>
+            <a href="/contact" class="text-gray-600 hover:text-brand-green font-medium hidden md:block">Contact</a>
+
+            <button id="langToggle"
+                class="border border-brand-green text-brand-green px-4 py-1 rounded-full text-sm font-medium hover:bg-brand-light transition">
+                English / हिंदी
+            </button>
+
+            <% if (locals.user) { %>
+                <a href="/user/profile" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="text-right hidden sm:block">
+
+                    </div>
+                    <div
+                        class="w-9 h-9 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-semibold text-sm group-hover:bg-emerald-200 transition-colors border-2 border-green-900">
+                        <% const names=user.fullName.split(' ');
+        const initials = names.length > 1 
+            ? names[0][0] + names[names.length - 1][0] 
+            : names[0].slice(0, 2);
+    %>
+    <%= initials.toUpperCase() %>
+</div>
+                </a>
+
+                <% } else { %>
+                    <!-- Show login button when not logged in -->
+                    <a href="/user/signin"
+                        class="bg-brand-green text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-dark transition shadow-lg shadow-emerald-200 inline-block text-center">
+                        Login
+                    </a>
+                    <% } %>
+        </div>
+    </nav>
+        <div id="agri-alerts" class="fixed top-4 right-4 z-[100] space-y-3 w-[360px] max-w-[90vw]">
+
+
+        <!-- Error Alert -->
+        
+            <!-- Success Alert -->
+            <% if (locals.success) { %>
+                <div id="agri-success"
+                    class="bg-white rounded-xl shadow-xl border-2 border-emerald-200 overflow-hidden transform transition-all duration-300"
+                    role="alert" style="animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)">
+
+                    <!-- Header with icon -->
+                    <div
+                        class="bg-gradient-to-r from-emerald-50 to-green-100 px-4 py-3 border-b border-emerald-200 flex items-center">
+                        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="ml-3 text-sm font-bold text-emerald-900">Success!</p>
+                        <button onclick="removeAlert(' agri-success')"
+                            class="ml-auto text-emerald-400 hover:text-emerald-600 focus:outline-none">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            </button>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="px-4 py-3">
+                        <p class="text-sm text-gray-700">
+                            <%= locals.success %>
+                        </p>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="h-1 bg-emerald-600 agri-progress"></div>
+        </div>
+        <% } %>
+
+            </div>
+
+            <!-- HERO SECTION -->
+            <section class="max-w-7xl mx-auto px-6 md:px-12 py-16 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+
+                <div class="space-y-6">
+
+                    <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight">
+                        Smart analytics for <br>
+                        <span class="text-brand-green">future farming</span>
+                    </h1>
+
+                    <p class="text-lg text-gray-600 leading-relaxed max-w-lg">
+                        From instant disease detection to deep trend analysis. Get a digital quality certificate
+                        and
+                        production insights for your harvest in seconds using AI.
+                    </p>
+
+                    <% if (locals.user) { %>
+                        <!-- Show dashboard button when logged in -->
+                        <a href="/user/dashboard"
+                            class="inline-block bg-brand-green text-white px-8 py-3 rounded-lg font-bold hover:bg-brand-dark transition shadow-lg shadow-emerald-200">
+                            Go to Dashboard
+                        </a>
+                        <% } else { %>
+                            <!-- Show get started button when not logged in -->
+                            <a href="/user/signup"
+                                class="inline-block bg-brand-green text-white px-8 py-3 rounded-lg font-bold hover:bg-brand-dark transition shadow-lg shadow-emerald-200">
+                                Get Started Free
+                            </a>
+                            <% } %>
+                </div>
+
+                <div class="relative">
+                    <div
+                        class="absolute -top-4 -right-4 w-72 h-72 bg-emerald-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob">
+                    </div>
+
+                    <% if (locals.user) { %>
+                        <div class="relative bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                            <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">Live Dashboard</h3>
+                                    <p class="text-sm text-gray-400">Region : <%= user?.region %>
+                                    </p>
+                                </div>
+                                <span
+                                    class="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Active
+                                </span>
+                            </div>
+
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-xl">
+                                    <p class="text-xs text-gray-500 mb-1">Yield Trend (2025)</p>
+                                    <p class="text-2xl font-bold text-gray-800">
+                                        <%= yieldTrend %>
+                                    </p>
+                                    <p class="text-xs text-<%= trendColor %>-600 flex items-center gap-1 mt-1">
+                                        <i class="fa-solid <%= trendIcon %>"></i>
+                                        <%= trendStatus %>
+                                    </p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-xl" id="soil-card">
+                                    <p class="text-xs text-gray-500 mb-1">Soil Productivity</p>
+                                    <p class="text-2xl font-bold text-gray-800 " id="soil-status">---</p>
+                                    <p class="text-xs text-brand-green font-medium mt-1 " id="soil-detail">---</p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-xl">
+                                    <p class="text-xs text-gray-500 mb-1">Current Season</p>
+                                    <p class="text-2xl font-bold text-gray-800">Rabi</p>
+                                    <p class="text-xs text-gray-500 mt-1">Oct - March</p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-xl" id="crop-card">
+                                    <p class="text-xs text-gray-500 mb-1">Rec. Cash Crop</p>
+                                    <p class="text-2xl font-bold text-gray-800 " id="recommended-crop">---</p>
+                                    <p class="text-xs text-green-600 mt-1">Best for this soil</p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <% } else { %>
+                            <div class="relative bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                                <div class="flex justify-between items-start mb-6 border-b border-gray-100 pb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Sample Dashboard</h3>
+                                        <p class="text-sm text-gray-400">Please <strong>login </strong>to see the real
+                                            data .
+                                        </p>
+                                    </div>
+                                    <span
+                                        class="flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+                                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                        Deactive
+                                    </span>
+                                </div>
+
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-4 rounded-xl">
+                                        <p class="text-xs text-gray-500 mb-1">Yield Trend (2026)</p>
+                                        <p class="text-2xl font-bold text-gray-800">+12.5%</p>
+                                        <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                                            <i class="fa-solid fa-arrow-trend-up"></i> Steady Growth
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-xl">
+                                        <p class="text-xs text-gray-500 mb-1">Soil Productivity</p>
+                                        <p class="text-2xl font-bold text-gray-800">High</p>
+                                        <p class="text-xs text-brand-green font-medium mt-1">Nitrogen rich</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-xl">
+                                        <p class="text-xs text-gray-500 mb-1">Current Season</p>
+                                        <p class="text-2xl font-bold text-gray-800">Rabi</p>
+                                        <p class="text-xs text-gray-500 mt-1">Oct - March</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-xl">
+                                        <p class="text-xs text-gray-500 mb-1">Rec. Cash Crop</p>
+                                        <p class="text-2xl font-bold text-gray-800">Cotton</p>
+                                        <p class="text-xs text-green-600 mt-1">Best for this soil</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <% } %>
+                </div>
+            </section>
+
+            <!-- SERVICES SECTION -->
+            <section class="bg-emerald-50 py-16 px-6 md:px-12">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-12">Our Services</h2>
+
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <a href="/user/dashboard" class="block">
+                            <div
+                                class="bg-white p-8 rounded-xl shadow-md border-b-4 border-brand-green hover:-translate-y-1 transition duration-300">
+                                <div
+                                    class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                                    <i class="fa-solid fa-magnifying-glass text-blue-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">AI Disease Detection
+                                </h3>
+                                <p class="text-gray-600 text-center text-sm">
+                                    Upload the photo of your crop leaf.Our AI analyzes patterns to detect dieseases
+                                    instantly.
+                                </p>
+                            </div>
+                        </a>
+                        <a href="/user/crop-info" class="block">
+                            <div
+                                class="bg-white p-8 rounded-xl shadow-md border-b-4 border-brand-green hover:-translate-y-1 transition duration-300">
+                                <div
+                                    class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                                    <i class="fa-solid fa-seedling text-green-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Master Your Crops</h3>
+                                <p class="text-gray-600 text-center text-sm">
+                                    Explore comprehensive information about all major crops grown in your region.
+                                </p>
+                            </div>
+                        </a>
+
+                        <a href="/user/market" class="block">
+                            <div
+                                class="bg-white p-8 rounded-xl shadow-md border-b-4 border-brand-green hover:-translate-y-1 transition duration-300">
+                                <div
+                                    class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                                    <i class="fa-solid fa-chart-line text-purple-600 text-xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Market Rates</h3>
+                                <p class="text-gray-600 text-center text-sm">
+                                    View real-time Mandi rates from your district and across India.
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <footer class="bg-gray-900 text-white pt-16 pb-8">
+                <div class="max-w-7xl mx-auto px-6 md:px-12">
+                    <div class="grid md:grid-cols-4 gap-12 mb-12">
+                        <div class="col-span-1 md:col-span-1">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-leaf text-brand-green text-xl"></i>
+                                <span class="text-xl font-bold">KRUSHIMITRA</span>
+                            </div>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Empowering farmers with AI-driven insights for better yields and smarter
+                                decisions.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Platform</h4>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li><a href="/user/cropinfo" class="hover:text-brand-green transition">Master Your
+                                        Crops</a></li>
+                                <li><a href="/user/AI-disease-diagnose" class="hover:text-brand-green transition">AI
+                                        Disease Detection</a>
+                                </li>
+                                <li><a href="/user/market" class="hover:text-brand-green transition">Market Prices</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Company</h4>
+                            <ul class="space-y-2 text-gray-400 text-sm">
+                                <li><a href="/about" class="hover:text-brand-green transition">About Us</a></li>
+                                <li><a href="/contact" class="hover:text-brand-green transition">Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold mb-4">Connect</h4>
+                            <div class="flex gap-4">
+                                <a href="https://www.linkedin.com/in/kapil-dharme-a52a1336a/"
+                                    class="w-8 h-8 bg-gray-800 rounded flex items-center justify-center hover:bg-brand-green transition">
+                                    <i class="fa-brands fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://github.com/Kapil-dharme"
+                                    class="w-8 h-8 bg-gray-800 rounded flex items-center justify-center hover:bg-brand-green transition">
+                                    <i class="fa-brands fa-github"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                        &copy; 2026 KRUSHIMITRA. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+            <%- include("./partials/googletranslate") %>
+                <script>
+                    function removeAlert(alertId) {
+                        const alert = document.getElementById(alertId);
+                        if (alert) {
+                            alert.style.animation = ' popOut 0.3s ease-out forwards'; setTimeout(() =>
+                                alert.remove(), 300);
+                        }
+                    }
+
+                    // Auto-dismiss after 5 seconds
+                    document.addEventListener('DOMContentLoaded', function () {
+                        setTimeout(() => {
+                            const errorAlert = document.getElementById('agri-error');
+                            if (errorAlert) removeAlert('agri-error');
+                        }, 1000);
+
+                        setTimeout(() => {
+                            const successAlert = document.getElementById('agri-success');
+                            if (successAlert) removeAlert('agri-success');
+                        }, 1000);
+                    });
+                </script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+
+
+                        /* ================= HARD CODED SOIL MOISTURE ================= */
+                        const HARD_CODED_SOIL_DATA = {
+                            /* ===== MAHARASHTRA ===== */
+                            "Amravati": 0.22,
+                            "Nagpur": 0.20,
+                            "Pune": 0.18,
+                            "Mumbai": 0.32,
+                            "Nashik": 0.21,
+                            "Aurangabad": 0.19,
+                            "Solapur": 0.16,
+                            "Kolhapur": 0.28,
+                            "Satara": 0.26,
+                            "Jalgaon": 0.17,
+                            "Akola": 0.18,
+                            "Yavatmal": 0.21,
+
+                            /* ===== MADHYA PRADESH ===== */
+                            "Indore": 0.17,
+                            "Bhopal": 0.18,
+                            "Ujjain": 0.19,
+                            "Gwalior": 0.16,
+                            "Jabalpur": 0.22,
+                            "Rewa": 0.23,
+                            "Sagar": 0.20,
+
+                            /* ===== GUJARAT ===== */
+                            "Ahmedabad": 0.15,
+                            "Surat": 0.24,
+                            "Vadodara": 0.20,
+                            "Rajkot": 0.17,
+                            "Bhavnagar": 0.18,
+                            "Jamnagar": 0.16,
+                            "Junagadh": 0.21,
+
+                            /* ===== RAJASTHAN ===== */
+                            "Jaipur": 0.14,
+                            "Jodhpur": 0.12,
+                            "Udaipur": 0.19,
+                            "Kota": 0.18,
+                            "Bikaner": 0.11,
+                            "Ajmer": 0.15,
+                            "Alwar": 0.16,
+
+                            /* ===== UTTAR PRADESH ===== */
+                            "Lucknow": 0.24,
+                            "Kanpur": 0.22,
+                            "Varanasi": 0.25,
+                            "Prayagraj": 0.23,
+                            "Meerut": 0.21,
+                            "Agra": 0.19,
+                            "Bareilly": 0.26,
+                            "Gorakhpur": 0.28,
+                            "Jhansi": 0.18,
+
+                            /* ===== BIHAR ===== */
+                            "Patna": 0.31,
+                            "Gaya": 0.27,
+                            "Bhagalpur": 0.33,
+                            "Muzaffarpur": 0.30,
+                            "Purnia": 0.34,
+                            "Darbhanga": 0.32,
+
+                            /* ===== TELANGANA ===== */
+                            "Hyderabad": 0.23,
+                            "Warangal": 0.21,
+                            "Nizamabad": 0.22,
+                            "Karimnagar": 0.20,
+                            "Khammam": 0.25,
+
+                            /* ===== ANDHRA PRADESH ===== */
+                            "Vijayawada": 0.27,
+                            "Guntur": 0.28,
+                            "Kurnool": 0.19,
+                            "Anantapur": 0.17,
+                            "Nellore": 0.30,
+                            "Visakhapatnam": 0.31,
+
+                            /* ===== KARNATAKA ===== */
+                            "Bengaluru": 0.26,
+                            "Mysuru": 0.28,
+                            "Hubballi": 0.22,
+                            "Belagavi": 0.24,
+                            "Ballari": 0.19,
+                            "Kalaburagi": 0.20,
+                            "Davanagere": 0.23,
+
+                            /* ===== TAMIL NADU ===== */
+                            "Chennai": 0.29,
+                            "Coimbatore": 0.27,
+                            "Madurai": 0.25,
+                            "Salem": 0.24,
+                            "Tiruchirappalli": 0.23,
+                            "Erode": 0.26,
+                            "Thanjavur": 0.30,
+
+                            /* ===== KERALA ===== */
+                            "Thiruvananthapuram": 0.38,
+                            "Kollam": 0.37,
+                            "Kottayam": 0.36,
+                            "Ernakulam": 0.35,
+                            "Thrissur": 0.34,
+                            "Palakkad": 0.31,
+                            "Malappuram": 0.33,
+
+                            /* ===== WEST BENGAL ===== */
+                            "Kolkata": 0.34,
+                            "Howrah": 0.33,
+                            "Hooghly": 0.32,
+                            "Bardhaman": 0.30,
+                            "Murshidabad": 0.31,
+                            "Malda": 0.29,
+                            "Cooch Behar": 0.35,
+
+                            /* ===== ODISHA ===== */
+                            "Bhubaneswar": 0.28,
+                            "Cuttack": 0.29,
+                            "Puri": 0.31,
+                            "Sambalpur": 0.23,
+                            "Balasore": 0.30,
+
+                            /* ===== CHHATTISGARH ===== */
+                            "Raipur": 0.26,
+                            "Bilaspur": 0.27,
+                            "Durg": 0.25,
+                            "Korba": 0.28,
+
+                            /* ===== JHARKHAND ===== */
+                            "Ranchi": 0.29,
+                            "Dhanbad": 0.24,
+                            "Jamshedpur": 0.27,
+
+                            /* ===== PUNJAB ===== */
+                            "Ludhiana": 0.28,
+                            "Amritsar": 0.30,
+                            "Patiala": 0.27,
+                            "Jalandhar": 0.29,
+
+                            /* ===== HARYANA ===== */
+                            "Gurgaon": 0.18,
+                            "Faridabad": 0.19,
+                            "Hisar": 0.21,
+                            "Karnal": 0.24,
+
+                            /* ===== ASSAM ===== */
+                            "Guwahati": 0.36,
+                            "Dibrugarh": 0.38,
+                            "Silchar": 0.35,
+
+                            /* ===== HIMACHAL PRADESH ===== */
+                            "Shimla": 0.31,
+                            "Kangra": 0.29,
+                            "Solan": 0.28,
+
+                            /* ===== JAMMU & KASHMIR ===== */
+                            "Srinagar": 0.33,
+                            "Jammu": 0.27
+                        };
+
+                        /* ================= FAMOUS CROPS + REQUIREMENTS ================= */
+                        const FAMOUS_CROPS_BY_CITY = {
+                            "Nagpur": { crop: "Orange 🍊", min: 0.18, max: 0.28 },
+                            "Nashik": { crop: "Grapes 🍇", min: 0.20, max: 0.30 },
+                            "Jalgaon": { crop: "Banana 🍌", min: 0.25, max: 0.40 },
+                            "Kolhapur": { crop: "Sugarcane", min: 0.28, max: 0.45 },
+                            "Guntur": { crop: "Chilli 🌶️", min: 0.22, max: 0.32 },
+                            "Amravati": { crop: "Cotton", min: 0.18, max: 0.30 },
+                            "Indore": { crop: "Soybean", min: 0.18, max: 0.28 },
+                            "Muzaffarpur": { crop: "Litchi 🍒", min: 0.25, max: 0.35 },
+                            "Thanjavur": { crop: "Rice 🌾", min: 0.30, max: 0.45 },
+                            "Guwahati": { crop: "Tea 🍃", min: 0.30, max: 0.45 },
+                            "Srinagar": { crop: "Apple 🍎", min: 0.22, max: 0.32 }
+                        };
+
+                        async function fetchAgriIntelligence() {
+                            try {
+                                let city = "<%= user?.district %>".trim();
+                                if (!city || city.includes("<" + "%")) city = "Nagpur";
+
+
+                                let moisture;
+
+                                /* ===== STEP 1: USE HARD CODED DATA ===== */
+                                if (HARD_CODED_SOIL_DATA[city]) {
+                                    moisture = HARD_CODED_SOIL_DATA[city];
+                                } else {
+                                    // API fallback (rare case)
+                                    const geoRes = await fetch(
+                                        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1`
+                                    );
+                                    const geoData = await geoRes.json();
+                                    const { latitude, longitude } = geoData.results[0];
+
+                                    const res = await fetch(
+                                        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=soil_moisture_0_to_7cm&timezone=auto`
+                                    );
+                                    const data = await res.json();
+                                    moisture = data.hourly.soil_moisture_0_to_7cm[new Date().getHours()];
+                                }
+
+
+                                /* ================= UI ELEMENTS ================= */
+                                const statusEl = document.getElementById("soil-status");
+                                const detailEl = document.getElementById("soil-detail");
+                                const cropEl = document.getElementById("recommended-crop");
+                                const soilCard = document.getElementById("soil-card");
+
+                                /* ================= NORMAL CROP (FALLBACK) ================= */
+                                let normalCrop;
+                                if (moisture >= 0.35) normalCrop = "Rice / Sugarcane";
+                                else if (moisture > 0.18) normalCrop = "Cotton / Soybean";
+                                else normalCrop = "Millets / Sorghum";
+
+                                /* ================= SMART FAMOUS CROP LOGIC ================= */
+                                let finalCrop = normalCrop;
+
+                                if (FAMOUS_CROPS_BY_CITY[city]) {
+                                    const { crop, min, max } = FAMOUS_CROPS_BY_CITY[city];
+
+                                    if (moisture >= min && moisture <= max) {
+                                        finalCrop = crop; // ✅ Famous crop wins
+                                    }
+                                }
+
+                                /* ================= UI STYLE ================= */
+                                if (moisture >= 0.34) {
+                                    statusEl.innerText = "High";
+                                    detailEl.innerText = "Moisture Rich";
+
+                                } else if (moisture > 0.18) {
+                                    statusEl.innerText = "Optimal";
+                                    detailEl.innerText = "Balanced Soil";
+
+                                } else {
+                                    statusEl.innerText = "Low";
+                                    detailEl.innerText = "Dry / Loamy";
+
+                                }
+
+                                cropEl.innerText = finalCrop;
+
+                            } catch (err) {
+                                console.error("KrushiMitra Error:", err);
+                                document.getElementById("soil-status").innerText = "Unavailable";
+                            }
+                        }
+
+                        fetchAgriIntelligence();
+                    });
+                </script>
+</body>
+
+</html>
