@@ -205,11 +205,7 @@ router.get("/dashboard", checkforrole("USER"), (req, res) => {
         user: req.user,
     })
 })
-router.get("/newdashboard", (req, res) => {
-    return res.render("newdashboard", {
-        user: req.user,
-    })
-})
+
 
 
 router.get("/profile", checkforrole("USER"), (req, res) => {
