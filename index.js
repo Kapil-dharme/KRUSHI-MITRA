@@ -41,6 +41,7 @@ app.get('/', (req, res) => {
 
     let trendStatus, trendColor, trendIcon;
 
+    
     if (randomVariation > 3) {
       trendStatus = "Growing Steady";
       trendColor = "green";
